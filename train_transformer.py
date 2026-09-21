@@ -236,6 +236,8 @@ def main():
     parser.add_argument("--run-name", default="transformer")
     parser.add_argument("--resume", default=None,
                         help="checkpoint to continue from (model AND optimizer state)")
+    parser.add_argument("--train-tokens", default=None,
+                        help="override the training token stream (default: Stage 3's)")
     parser.add_argument("--log-name", default=None, help="override the training CSV filename")
     parser.add_argument("--grad-name", default=None, help="override the grad-norm CSV filename")
     parser.add_argument("--samples-name", default=None, help="override the samples filename")
@@ -244,8 +246,9 @@ def main():
 
     torch.manual_seed(SEED)
     device = pick_device(args.device)
-    train_stream = load_stream(TRAIN_TOKENS, device)
-    val_stream = load_stream(VAL_TOKENS, device)
+    train_path = PROJECT_ROOT / args.train_tokens if args.train_tokens else TRAIN_TOKENS
+    train_stream = load_stream(train_path, device)
+    val_stream = load_stream(VAL_TOKENS, device)   # monitoring split, never overridden
     val_batches = make_fixed_batches(val_stream, EVAL_BATCHES, args.batch_size)
 
     model = TinyTransformer().to(device)
@@ -280,6 +283,7 @@ def main():
 
     total_steps = start_step + args.steps
     config = {"steps": total_steps, "new_steps": args.steps, "resumed_from": args.resume,
+              "train_tokens": str(train_path.relative_to(PROJECT_ROOT)),
               "batch_size": args.batch_size, "lr": args.lr,
               "weight_decay": WEIGHT_DECAY, "grad_clip": GRAD_CLIP, "seed": SEED,
               "context_length": CONTEXT_LENGTH, "vocab_size": VOCAB_SIZE}
@@ -410,8 +414,8 @@ def write_summary(args, config, wall_clock, curve, final_train, final_val, best_
         f"{total_steps:,}){resumed}, batch {args.batch_size}, lr {args.lr}, AdamW "
         f"(weight decay {config['weight_decay']} on projection/FFN weights only), "
         f"grad clip {config['grad_clip']}, seed {config['seed']}, device `{device.type}`",
-        f"- data: Stage 3's 95/5 split — {train_tokens:,} train tokens, validation from the "
-        f"monitoring split (`tinystories_valid.txt` untouched)",
+        f"- data: `{config['train_tokens']}` — {train_tokens:,} train tokens; validation is the "
+        f"Stage 3 monitoring split (`tinystories_valid.txt` untouched)",
         f"- saw {tokens_seen:,} tokens = {tokens_seen / train_tokens:.1f} epochs",
         f"- wall clock: {wall_clock / 60:.1f} min ({1000 * wall_clock / config['new_steps']:.0f} ms/step)",
         "",
