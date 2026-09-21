@@ -17,8 +17,11 @@ which every token is scored exactly once.
     venv/bin/python eval_official_valid.py
 """
 
+import argparse
 import math
 from datetime import datetime
+
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -31,7 +34,10 @@ from tokenizer.bpe_tokenizer import SAVE_FILE, STORY_SEPARATOR, BPETokenizer
 from train_transformer import PROJECT_ROOT, RESULTS_FILE, TRAIN_TOKENS, pick_device
 
 VALID_FILE = PROJECT_ROOT / "data" / "tinystories_valid.txt"
-CHECKPOINT = PROJECT_ROOT / "checkpoints" / "transformer_best.pt"
+DEFAULT_CHECKPOINT = "checkpoints/transformer_best.pt"
+# Already recorded in results/stage4_transformer.md, carried into later tables so
+# every transformer run can be compared on this same file.
+TRANSFORMER_5K_OFFICIAL = 2.3236
 # Stage 3's best bigram run (batch 64, lr 0.1), re-scored here on this same file.
 BIGRAM_CHECKPOINT = PROJECT_ROOT / "checkpoints" / "stage3_batch64_lr0.1.pt"
 SMOOTHING_K = 0.01          # fixed in Stage 3, chosen on a held-out TRAINING slice
@@ -126,6 +132,13 @@ def score_trained_bigram(inputs, targets, device):
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Official validation-set evaluation")
+    parser.add_argument("--checkpoint", default=DEFAULT_CHECKPOINT)
+    parser.add_argument("--results-file", default=None,
+                        help="results summary to APPEND to (default: the 5k results file)")
+    args = parser.parse_args()
+    checkpoint_path = PROJECT_ROOT / args.checkpoint
+    results_path = PROJECT_ROOT / args.results_file if args.results_file else RESULTS_FILE
     device = pick_device()
     tokenizer = BPETokenizer.load(SAVE_FILE)
 
@@ -137,7 +150,7 @@ def main():
     print(f"  {len(windows):,} full windows of {CONTEXT_LENGTH}; "
           f"dropped {dropped} tokens in the final partial window")
 
-    checkpoint = torch.load(CHECKPOINT, map_location=device, weights_only=False)
+    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
     model = TinyTransformer().to(device)
     model.load_state_dict(checkpoint["model"])
     model.eval()
@@ -184,26 +197,31 @@ def main():
         ("unigram (no context)", unigram),
         ("Stage 3 trained bigram (1-token context)", trained_bigram),
         ("count-based bigram floor (add-0.01)", bigram),
-        ("this transformer (512-token context)", loss),
     ]
+    if checkpoint_path.name != Path(DEFAULT_CHECKPOINT).name:
+        # Keep the earlier transformer in the table, measured the same way.
+        rows.append(("5k transformer, step 5,000 (recorded)", TRANSFORMER_5K_OFFICIAL))
+    rows.append((f"this transformer, step {checkpoint['step']:,} (512-token context)", loss))
     print(f"\n{'model':<44} {'loss':>8} {'perplexity':>12}")
     for name, value in rows:
         print(f"{name:<44} {value:>8.4f} {math.exp(value):>12.2f}")
 
     append_summary(rows, loss, strided_loss, tokens, strided_tokens, len(stream),
-                   len(windows), dropped, num_stories, per_position, checkpoint)
-    print(f"\nAppended to {RESULTS_FILE.relative_to(PROJECT_ROOT)}")
+                   len(windows), dropped, num_stories, per_position, checkpoint,
+                   checkpoint_path, results_path)
+    print(f"\nAppended to {results_path.relative_to(PROJECT_ROOT)}")
 
 
 def append_summary(rows, loss, strided_loss, tokens, strided_tokens, stream_tokens,
-                   num_windows, dropped, num_stories, per_position, checkpoint):
+                   num_windows, dropped, num_stories, per_position, checkpoint,
+                   checkpoint_path, results_path):
     lines = [
         "",
         "---",
         "",
         f"## Official validation set — {datetime.now():%Y-%m-%d %H:%M}",
         "",
-        "Read-only evaluation of `checkpoints/transformer_best.pt` "
+        f"Read-only evaluation of `{checkpoint_path.name}` "
         f"(step {checkpoint['step']:,}) on `data/tinystories_valid.txt`, reserved and "
         "untouched since Stage 1. One deterministic pass, every token scored exactly "
         "once — no sampling, no repeats.",
@@ -249,7 +267,7 @@ def append_summary(rows, loss, strided_loss, tokens, strided_tokens, stream_toke
                  "nothing. This is what the reserved-file number costs relative to a sliding "
                  "window, and it is also a direct measure of what context is worth.")
 
-    with RESULTS_FILE.open("a", encoding="utf-8") as f:
+    with results_path.open("a", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
 
 
