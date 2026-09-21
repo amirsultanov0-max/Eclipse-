@@ -18,6 +18,7 @@ which every token is scored exactly once.
 """
 
 import argparse
+import json
 import math
 from datetime import datetime
 
@@ -40,16 +41,29 @@ DEFAULT_CHECKPOINT = "checkpoints/transformer_best.pt"
 TRANSFORMER_5K_OFFICIAL = 2.3236
 # Stage 3's best bigram run (batch 64, lr 0.1), re-scored here on this same file.
 BIGRAM_CHECKPOINT = PROJECT_ROOT / "checkpoints" / "stage3_batch64_lr0.1.pt"
+MANIFEST = PROJECT_ROOT / "metadata" / "stage6_1_corpus.json"
 SMOOTHING_K = 0.01          # fixed in Stage 3, chosen on a held-out TRAINING slice
 EVAL_BATCH = 16
 POSITION_BUCKETS = [(1, 16), (17, 64), (65, 128), (129, 256), (257, 511)]
 
 
-def encode_official_valid(tokenizer):
-    """Same construction as prepare_data.py: story ... <EOS> story ... <EOS>"""
+def encode_official_valid(tokenizer, excluded_hashes=frozenset()):
+    """
+    Same construction as prepare_data.py: story ... <EOS> story ... <EOS>
+
+    With `excluded_hashes`, stories whose sha256 is in that set are dropped first —
+    the clean validation subset defined in docs/stage6_1_design.md section 9.4.
+    """
+    import hashlib
     text = VALID_FILE.read_text(encoding="utf-8")
     stories = [s.strip("\n") for s in text.split(STORY_SEPARATOR)]
     stories = [s for s in stories if s]
+    if excluded_hashes:
+        kept = [s for s in stories
+                if hashlib.sha256(s.encode("utf-8")).hexdigest() not in excluded_hashes]
+        print(f"  clean subset: {len(stories):,} -> {len(kept):,} stories "
+              f"({len(stories) - len(kept):,} excluded)")
+        stories = kept
     ids = []
     for story in stories:
         ids.extend(tokenizer.encode(story))
@@ -136,14 +150,21 @@ def main():
     parser.add_argument("--checkpoint", default=DEFAULT_CHECKPOINT)
     parser.add_argument("--results-file", default=None,
                         help="results summary to APPEND to (default: the 5k results file)")
+    parser.add_argument("--clean-subset", action="store_true",
+                        help="drop the 100 contaminated stories (design section 9.4)")
     args = parser.parse_args()
     checkpoint_path = PROJECT_ROOT / args.checkpoint
     results_path = PROJECT_ROOT / args.results_file if args.results_file else RESULTS_FILE
     device = pick_device()
     tokenizer = BPETokenizer.load(SAVE_FILE)
 
-    print(f"Encoding {VALID_FILE.name} (reserved since Stage 1, first use)...")
-    stream, num_stories = encode_official_valid(tokenizer)
+    excluded = frozenset()
+    if args.clean_subset:
+        excluded = frozenset(json.loads(MANIFEST.read_text(encoding="utf-8"))
+                             ["clean_validation_subset"]["excluded_story_hashes"])
+    label = "clean subset" if args.clean_subset else "full file"
+    print(f"Encoding {VALID_FILE.name} ({label})...")
+    stream, num_stories = encode_official_valid(tokenizer, excluded)
     windows = make_windows(stream, CONTEXT_LENGTH)
     dropped = len(stream) - windows.size
     print(f"  {num_stories:,} stories -> {len(stream):,} tokens")
@@ -198,7 +219,7 @@ def main():
         ("Stage 3 trained bigram (1-token context)", trained_bigram),
         ("count-based bigram floor (add-0.01)", bigram),
     ]
-    if checkpoint_path.name != Path(DEFAULT_CHECKPOINT).name:
+    if checkpoint_path.name != Path(DEFAULT_CHECKPOINT).name and not args.clean_subset:
         # Keep the earlier transformer in the table, measured the same way.
         rows.append(("5k transformer, step 5,000 (recorded)", TRANSFORMER_5K_OFFICIAL))
     rows.append((f"this transformer, step {checkpoint['step']:,} (512-token context)", loss))
@@ -208,20 +229,20 @@ def main():
 
     append_summary(rows, loss, strided_loss, tokens, strided_tokens, len(stream),
                    len(windows), dropped, num_stories, per_position, checkpoint,
-                   checkpoint_path, results_path)
+                   checkpoint_path, results_path, label)
     print(f"\nAppended to {results_path.relative_to(PROJECT_ROOT)}")
 
 
 def append_summary(rows, loss, strided_loss, tokens, strided_tokens, stream_tokens,
                    num_windows, dropped, num_stories, per_position, checkpoint,
-                   checkpoint_path, results_path):
+                   checkpoint_path, results_path, label):
     lines = [
         "",
         "---",
         "",
         f"## Official validation set — {datetime.now():%Y-%m-%d %H:%M}",
         "",
-        f"Read-only evaluation of `{checkpoint_path.name}` "
+        f"Read-only evaluation of `{checkpoint_path.name}` ({label}) "
         f"(step {checkpoint['step']:,}) on `data/tinystories_valid.txt`, reserved and "
         "untouched since Stage 1. One deterministic pass, every token scored exactly "
         "once — no sampling, no repeats.",

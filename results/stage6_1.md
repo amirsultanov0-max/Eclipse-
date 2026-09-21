@@ -1,4 +1,4 @@
-# Stage 4 — transformer results
+# Stage 6.1 — more training data (200 MB corpus)
 
 ## transformer_6_1 — 2026-09-21 22:31
 

@@ -88,6 +88,7 @@ scores). The category 2 checklist is then filled in eval/causal_scores.json
 by reading each generation, and re-running merges it into the report.
 """
 
+import argparse
 import json
 from datetime import datetime
 
@@ -307,6 +308,25 @@ def build_report(records, causal):
 
 
 def main():
+    # Paths and checkpoint can be overridden so the same frozen harness can be
+    # pointed at another model. The SCORING RULES above are never overridden.
+    parser = argparse.ArgumentParser(description="Stage 5.5 structured error analysis")
+    parser.add_argument("--checkpoint", default=None)
+    parser.add_argument("--label", default=None)
+    parser.add_argument("--generations", default=None)
+    parser.add_argument("--causal-scores", default=None)
+    parser.add_argument("--output", default=None)
+    args = parser.parse_args()
+    global CHECKPOINT, GENERATIONS_FILE, CAUSAL_SCORES_FILE, OUTPUT_FILE
+    if args.checkpoint:
+        CHECKPOINT = (args.label or Path(args.checkpoint).stem, args.checkpoint)
+    if args.generations:
+        GENERATIONS_FILE = PROJECT_ROOT / args.generations
+    if args.causal_scores:
+        CAUSAL_SCORES_FILE = PROJECT_ROOT / args.causal_scores
+    if args.output:
+        OUTPUT_FILE = PROJECT_ROOT / args.output
+
     if GENERATIONS_FILE.exists():
         records = json.loads(GENERATIONS_FILE.read_text(encoding="utf-8"))
         print(f"Reusing {GENERATIONS_FILE.relative_to(PROJECT_ROOT)} "

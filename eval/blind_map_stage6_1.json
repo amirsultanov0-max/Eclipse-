@@ -1,0 +1,496 @@
+{
+ "created_at": "2026-09-21T17:39:37+00:00",
+ "note": "Sealed before any category-2 score exists. Unblinds eval/blind_causal_scores_stage6_1.json after a fresh session returns it.",
+ "shuffle_seed": 1337,
+ "sources": {
+  "baseline": "eval/generations_topk40.json",
+  "stage6_1": "eval/generations_topk40_6_1.json"
+ },
+ "blind_set_sha256": "db1228c93345ebc94a84b4285161651d2c3e41f23b18e3ed0a2ac13af01ecc8e",
+ "counts": {
+  "baseline": 40,
+  "stage6_1": 40
+ },
+ "mapping": {
+  "gen_0001": {
+   "source_model": "stage6_1",
+   "original_id": "park_dialogue_1339",
+   "prompt_id": "park_dialogue",
+   "seed": 1339
+  },
+  "gen_0002": {
+   "source_model": "stage6_1",
+   "original_id": "girl_store_1337",
+   "prompt_id": "girl_store",
+   "seed": 1337
+  },
+  "gen_0003": {
+   "source_model": "stage6_1",
+   "original_id": "park_dialogue_1337",
+   "prompt_id": "park_dialogue",
+   "seed": 1337
+  },
+  "gen_0004": {
+   "source_model": "baseline",
+   "original_id": "rainy_friends_1341",
+   "prompt_id": "rainy_friends",
+   "seed": 1341
+  },
+  "gen_0005": {
+   "source_model": "stage6_1",
+   "original_id": "tom_ball_1339",
+   "prompt_id": "tom_ball",
+   "seed": 1339
+  },
+  "gen_0006": {
+   "source_model": "baseline",
+   "original_id": "girl_store_1337",
+   "prompt_id": "girl_store",
+   "seed": 1337
+  },
+  "gen_0007": {
+   "source_model": "baseline",
+   "original_id": "rainy_friends_1340",
+   "prompt_id": "rainy_friends",
+   "seed": 1340
+  },
+  "gen_0008": {
+   "source_model": "baseline",
+   "original_id": "lily_key_1339",
+   "prompt_id": "lily_key",
+   "seed": 1339
+  },
+  "gen_0009": {
+   "source_model": "baseline",
+   "original_id": "park_dialogue_1341",
+   "prompt_id": "park_dialogue",
+   "seed": 1341
+  },
+  "gen_0010": {
+   "source_model": "stage6_1",
+   "original_id": "lily_key_1340",
+   "prompt_id": "lily_key",
+   "seed": 1340
+  },
+  "gen_0011": {
+   "source_model": "baseline",
+   "original_id": "robot_wish_1339",
+   "prompt_id": "robot_wish",
+   "seed": 1339
+  },
+  "gen_0012": {
+   "source_model": "baseline",
+   "original_id": "park_dialogue_1337",
+   "prompt_id": "park_dialogue",
+   "seed": 1337
+  },
+  "gen_0013": {
+   "source_model": "baseline",
+   "original_id": "tom_ball_1338",
+   "prompt_id": "tom_ball",
+   "seed": 1338
+  },
+  "gen_0014": {
+   "source_model": "stage6_1",
+   "original_id": "rainy_friends_1340",
+   "prompt_id": "rainy_friends",
+   "seed": 1340
+  },
+  "gen_0015": {
+   "source_model": "stage6_1",
+   "original_id": "dog_hungry_1337",
+   "prompt_id": "dog_hungry",
+   "seed": 1337
+  },
+  "gen_0016": {
+   "source_model": "stage6_1",
+   "original_id": "cat_window_1341",
+   "prompt_id": "cat_window",
+   "seed": 1341
+  },
+  "gen_0017": {
+   "source_model": "stage6_1",
+   "original_id": "cat_window_1337",
+   "prompt_id": "cat_window",
+   "seed": 1337
+  },
+  "gen_0018": {
+   "source_model": "stage6_1",
+   "original_id": "cat_window_1338",
+   "prompt_id": "cat_window",
+   "seed": 1338
+  },
+  "gen_0019": {
+   "source_model": "baseline",
+   "original_id": "cat_window_1340",
+   "prompt_id": "cat_window",
+   "seed": 1340
+  },
+  "gen_0020": {
+   "source_model": "stage6_1",
+   "original_id": "dog_hungry_1338",
+   "prompt_id": "dog_hungry",
+   "seed": 1338
+  },
+  "gen_0021": {
+   "source_model": "stage6_1",
+   "original_id": "rainy_friends_1338",
+   "prompt_id": "rainy_friends",
+   "seed": 1338
+  },
+  "gen_0022": {
+   "source_model": "baseline",
+   "original_id": "lily_key_1340",
+   "prompt_id": "lily_key",
+   "seed": 1340
+  },
+  "gen_0023": {
+   "source_model": "baseline",
+   "original_id": "tom_ball_1341",
+   "prompt_id": "tom_ball",
+   "seed": 1341
+  },
+  "gen_0024": {
+   "source_model": "stage6_1",
+   "original_id": "rainy_friends_1339",
+   "prompt_id": "rainy_friends",
+   "seed": 1339
+  },
+  "gen_0025": {
+   "source_model": "baseline",
+   "original_id": "girl_store_1341",
+   "prompt_id": "girl_store",
+   "seed": 1341
+  },
+  "gen_0026": {
+   "source_model": "baseline",
+   "original_id": "park_dialogue_1338",
+   "prompt_id": "park_dialogue",
+   "seed": 1338
+  },
+  "gen_0027": {
+   "source_model": "baseline",
+   "original_id": "cat_window_1339",
+   "prompt_id": "cat_window",
+   "seed": 1339
+  },
+  "gen_0028": {
+   "source_model": "baseline",
+   "original_id": "girl_store_1338",
+   "prompt_id": "girl_store",
+   "seed": 1338
+  },
+  "gen_0029": {
+   "source_model": "stage6_1",
+   "original_id": "dog_hungry_1340",
+   "prompt_id": "dog_hungry",
+   "seed": 1340
+  },
+  "gen_0030": {
+   "source_model": "baseline",
+   "original_id": "dog_hungry_1337",
+   "prompt_id": "dog_hungry",
+   "seed": 1337
+  },
+  "gen_0031": {
+   "source_model": "stage6_1",
+   "original_id": "robot_wish_1337",
+   "prompt_id": "robot_wish",
+   "seed": 1337
+  },
+  "gen_0032": {
+   "source_model": "baseline",
+   "original_id": "dog_hungry_1340",
+   "prompt_id": "dog_hungry",
+   "seed": 1340
+  },
+  "gen_0033": {
+   "source_model": "stage6_1",
+   "original_id": "robot_wish_1340",
+   "prompt_id": "robot_wish",
+   "seed": 1340
+  },
+  "gen_0034": {
+   "source_model": "baseline",
+   "original_id": "robot_wish_1338",
+   "prompt_id": "robot_wish",
+   "seed": 1338
+  },
+  "gen_0035": {
+   "source_model": "baseline",
+   "original_id": "dog_hungry_1339",
+   "prompt_id": "dog_hungry",
+   "seed": 1339
+  },
+  "gen_0036": {
+   "source_model": "baseline",
+   "original_id": "park_dialogue_1340",
+   "prompt_id": "park_dialogue",
+   "seed": 1340
+  },
+  "gen_0037": {
+   "source_model": "baseline",
+   "original_id": "dog_hungry_1341",
+   "prompt_id": "dog_hungry",
+   "seed": 1341
+  },
+  "gen_0038": {
+   "source_model": "baseline",
+   "original_id": "robot_wish_1337",
+   "prompt_id": "robot_wish",
+   "seed": 1337
+  },
+  "gen_0039": {
+   "source_model": "baseline",
+   "original_id": "tom_ball_1339",
+   "prompt_id": "tom_ball",
+   "seed": 1339
+  },
+  "gen_0040": {
+   "source_model": "baseline",
+   "original_id": "lily_key_1338",
+   "prompt_id": "lily_key",
+   "seed": 1338
+  },
+  "gen_0041": {
+   "source_model": "stage6_1",
+   "original_id": "tom_ball_1340",
+   "prompt_id": "tom_ball",
+   "seed": 1340
+  },
+  "gen_0042": {
+   "source_model": "stage6_1",
+   "original_id": "cat_window_1339",
+   "prompt_id": "cat_window",
+   "seed": 1339
+  },
+  "gen_0043": {
+   "source_model": "stage6_1",
+   "original_id": "girl_store_1340",
+   "prompt_id": "girl_store",
+   "seed": 1340
+  },
+  "gen_0044": {
+   "source_model": "baseline",
+   "original_id": "rainy_friends_1337",
+   "prompt_id": "rainy_friends",
+   "seed": 1337
+  },
+  "gen_0045": {
+   "source_model": "baseline",
+   "original_id": "tom_ball_1337",
+   "prompt_id": "tom_ball",
+   "seed": 1337
+  },
+  "gen_0046": {
+   "source_model": "baseline",
+   "original_id": "lily_key_1337",
+   "prompt_id": "lily_key",
+   "seed": 1337
+  },
+  "gen_0047": {
+   "source_model": "baseline",
+   "original_id": "cat_window_1341",
+   "prompt_id": "cat_window",
+   "seed": 1341
+  },
+  "gen_0048": {
+   "source_model": "baseline",
+   "original_id": "girl_store_1339",
+   "prompt_id": "girl_store",
+   "seed": 1339
+  },
+  "gen_0049": {
+   "source_model": "baseline",
+   "original_id": "robot_wish_1340",
+   "prompt_id": "robot_wish",
+   "seed": 1340
+  },
+  "gen_0050": {
+   "source_model": "stage6_1",
+   "original_id": "lily_key_1341",
+   "prompt_id": "lily_key",
+   "seed": 1341
+  },
+  "gen_0051": {
+   "source_model": "baseline",
+   "original_id": "dog_hungry_1338",
+   "prompt_id": "dog_hungry",
+   "seed": 1338
+  },
+  "gen_0052": {
+   "source_model": "stage6_1",
+   "original_id": "rainy_friends_1337",
+   "prompt_id": "rainy_friends",
+   "seed": 1337
+  },
+  "gen_0053": {
+   "source_model": "baseline",
+   "original_id": "lily_key_1341",
+   "prompt_id": "lily_key",
+   "seed": 1341
+  },
+  "gen_0054": {
+   "source_model": "stage6_1",
+   "original_id": "lily_key_1337",
+   "prompt_id": "lily_key",
+   "seed": 1337
+  },
+  "gen_0055": {
+   "source_model": "stage6_1",
+   "original_id": "girl_store_1339",
+   "prompt_id": "girl_store",
+   "seed": 1339
+  },
+  "gen_0056": {
+   "source_model": "stage6_1",
+   "original_id": "rainy_friends_1341",
+   "prompt_id": "rainy_friends",
+   "seed": 1341
+  },
+  "gen_0057": {
+   "source_model": "stage6_1",
+   "original_id": "lily_key_1339",
+   "prompt_id": "lily_key",
+   "seed": 1339
+  },
+  "gen_0058": {
+   "source_model": "baseline",
+   "original_id": "cat_window_1337",
+   "prompt_id": "cat_window",
+   "seed": 1337
+  },
+  "gen_0059": {
+   "source_model": "stage6_1",
+   "original_id": "lily_key_1338",
+   "prompt_id": "lily_key",
+   "seed": 1338
+  },
+  "gen_0060": {
+   "source_model": "baseline",
+   "original_id": "rainy_friends_1339",
+   "prompt_id": "rainy_friends",
+   "seed": 1339
+  },
+  "gen_0061": {
+   "source_model": "stage6_1",
+   "original_id": "robot_wish_1338",
+   "prompt_id": "robot_wish",
+   "seed": 1338
+  },
+  "gen_0062": {
+   "source_model": "stage6_1",
+   "original_id": "dog_hungry_1341",
+   "prompt_id": "dog_hungry",
+   "seed": 1341
+  },
+  "gen_0063": {
+   "source_model": "baseline",
+   "original_id": "park_dialogue_1339",
+   "prompt_id": "park_dialogue",
+   "seed": 1339
+  },
+  "gen_0064": {
+   "source_model": "baseline",
+   "original_id": "girl_store_1340",
+   "prompt_id": "girl_store",
+   "seed": 1340
+  },
+  "gen_0065": {
+   "source_model": "stage6_1",
+   "original_id": "tom_ball_1338",
+   "prompt_id": "tom_ball",
+   "seed": 1338
+  },
+  "gen_0066": {
+   "source_model": "stage6_1",
+   "original_id": "tom_ball_1341",
+   "prompt_id": "tom_ball",
+   "seed": 1341
+  },
+  "gen_0067": {
+   "source_model": "baseline",
+   "original_id": "tom_ball_1340",
+   "prompt_id": "tom_ball",
+   "seed": 1340
+  },
+  "gen_0068": {
+   "source_model": "stage6_1",
+   "original_id": "park_dialogue_1338",
+   "prompt_id": "park_dialogue",
+   "seed": 1338
+  },
+  "gen_0069": {
+   "source_model": "baseline",
+   "original_id": "cat_window_1338",
+   "prompt_id": "cat_window",
+   "seed": 1338
+  },
+  "gen_0070": {
+   "source_model": "stage6_1",
+   "original_id": "tom_ball_1337",
+   "prompt_id": "tom_ball",
+   "seed": 1337
+  },
+  "gen_0071": {
+   "source_model": "baseline",
+   "original_id": "robot_wish_1341",
+   "prompt_id": "robot_wish",
+   "seed": 1341
+  },
+  "gen_0072": {
+   "source_model": "stage6_1",
+   "original_id": "robot_wish_1339",
+   "prompt_id": "robot_wish",
+   "seed": 1339
+  },
+  "gen_0073": {
+   "source_model": "stage6_1",
+   "original_id": "girl_store_1341",
+   "prompt_id": "girl_store",
+   "seed": 1341
+  },
+  "gen_0074": {
+   "source_model": "stage6_1",
+   "original_id": "dog_hungry_1339",
+   "prompt_id": "dog_hungry",
+   "seed": 1339
+  },
+  "gen_0075": {
+   "source_model": "baseline",
+   "original_id": "rainy_friends_1338",
+   "prompt_id": "rainy_friends",
+   "seed": 1338
+  },
+  "gen_0076": {
+   "source_model": "stage6_1",
+   "original_id": "park_dialogue_1341",
+   "prompt_id": "park_dialogue",
+   "seed": 1341
+  },
+  "gen_0077": {
+   "source_model": "stage6_1",
+   "original_id": "park_dialogue_1340",
+   "prompt_id": "park_dialogue",
+   "seed": 1340
+  },
+  "gen_0078": {
+   "source_model": "stage6_1",
+   "original_id": "girl_store_1338",
+   "prompt_id": "girl_store",
+   "seed": 1338
+  },
+  "gen_0079": {
+   "source_model": "stage6_1",
+   "original_id": "cat_window_1340",
+   "prompt_id": "cat_window",
+   "seed": 1340
+  },
+  "gen_0080": {
+   "source_model": "stage6_1",
+   "original_id": "robot_wish_1341",
+   "prompt_id": "robot_wish",
+   "seed": 1341
+  }
+ }
+}

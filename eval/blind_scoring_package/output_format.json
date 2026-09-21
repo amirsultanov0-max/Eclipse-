@@ -1,0 +1,22 @@
+{
+ "_comment": "Return exactly this structure with one entry per id in generations.json. The two entries below are a FORMAT EXAMPLE ONLY \u2014 the booleans are illustrative, not answers.",
+ "scores": {
+  "gen_0001": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "the red bucket",
+    "uncaused_action": "she was suddenly afraid"
+   }
+  },
+  "gen_0002": {
+   "unexplained_object": false,
+   "uncaused_action": false,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {}
+  }
+ }
+}

@@ -242,6 +242,8 @@ def main():
     parser.add_argument("--grad-name", default=None, help="override the grad-norm CSV filename")
     parser.add_argument("--samples-name", default=None, help="override the samples filename")
     parser.add_argument("--results-file", default=None, help="override the results summary path")
+    parser.add_argument("--results-title", default="Stage 4 — transformer results",
+                        help="H1 heading of the results file (default keeps earlier files identical)")
     args = parser.parse_args()
 
     torch.manual_seed(SEED)
@@ -384,14 +386,14 @@ def main():
     write_summary(args, config, wall_clock, curve, final_train, final_val, best_val,
                   median_norm, max_norm, spikes, overall_clip, samples,
                   tokens_per_step, len(train_stream), log_path, grad_path, samples_path,
-                  checkpoints_dir, device, results_path)
+                  checkpoints_dir, device, results_path, args.results_title)
     print(f"\nResults -> {results_path.relative_to(PROJECT_ROOT)}")
 
 
 def write_summary(args, config, wall_clock, curve, final_train, final_val, best_val,
                   median_norm, max_norm, spikes, overall_clip, samples,
                   tokens_per_step, train_tokens, log_path, grad_path, samples_path,
-                  checkpoints_dir, device, results_path):
+                  checkpoints_dir, device, results_path, title):
     total_steps = config["steps"]
     tokens_seen = total_steps * tokens_per_step
     resumed = (f", resumed from `{config['resumed_from']}` at step "
@@ -404,7 +406,7 @@ def write_summary(args, config, wall_clock, curve, final_train, final_val, best_
                   f"lr=3e-3 spike pattern (38.4x at step 12) appeared.")
 
     lines = [
-        "# Stage 4 — transformer results",
+        f"# {title}",
         "",
         f"## {args.run_name} — {datetime.now():%Y-%m-%d %H:%M}",
         "",
