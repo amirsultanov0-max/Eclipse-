@@ -148,8 +148,14 @@ SHA-256 over normalized story text, against three reference sets:
 | New stories vs | Expected | If non-zero |
 |---|---|---|
 | Baseline's 21,065 training stories | 0 | report count (would indicate a seam error) |
-| The 1,109 monitoring-split stories | 0 | **exclude those stories from 6.1 training**, report count |
-| The 21,990 official validation stories | 0 | **exclude those stories from 6.1 training**, report count |
+| The 1,109 monitoring-split stories | 0 | **remove those stories from 6.1 training**, count recorded in the manifest |
+| The 21,990 official validation stories | 0 | **remove those stories from 6.1 training**, count recorded in the manifest |
+
+**Resolved (decision 5).** Exact duplicates of any monitoring-split or official
+validation story are *removed* from the training corpus, with counts recorded. The
+first-100-normalized-character near-duplicate probe is **reported only** and does not
+trigger removal, since a shared opening sentence is not evidence of a duplicated
+story in a synthetic corpus with formulaic openings.
 
 Reading the official validation file for hashing is a read-only integrity check. It
 produces no training signal and no metric; the file remains unused for evaluation
@@ -173,8 +179,15 @@ Fields: `source_url`, `revision_sha`, `etag`, `content_length`, `retrieved_at`;
 `baseline_stories`, `new_stories`, `total_stories`, `total_characters`;
 `bpe_tokens_total`, `bpe_tokens_training`, `unk_count`, `unk_rate`,
 `characters_outside_alphabet`; `duplicate_story_count`, `overlap_with_baseline_train`,
-`overlap_with_monitoring`, `overlap_with_official_valid`, `stories_excluded`;
+`overlap_with_monitoring`, `overlap_with_official_valid`, `stories_removed`,
+`near_duplicate_probe` (reported, no removal);
 `sha256_baseline_subset`, `sha256_combined_corpus`; `python_version`, `torch_version`.
+
+**Also recorded (flag 1).** `characters_per_token` and `characters_seen_at_budget`
+for **both** the baseline and 6.1 — that is, `81,920,000 x (corpus characters /
+corpus tokens)`. The token budget is identical by construction, so this quantifies how
+much *text* each run actually sees, making any compression drift under the frozen
+tokenizer visible as a number rather than an assumption.
 
 ## 7. Data preparation
 
@@ -210,11 +223,15 @@ Outputs: `logs/transformer_6_1_training.csv`, `logs/transformer_6_1_grad_norms.c
 Gradient norms are logged per step and audited for spikes above 10× median, as in the
 baseline runs.
 
-**Open decision (§12.11):** the baseline reached 10,000 steps as 5,000 + a resumed
-5,000. A single continuous 10,000-step run is the natural form here. The optimizer
-semantics are identical (AdamW state was restored on resume), and the difference is
-limited to which random windows are drawn. Recommendation: single continuous run,
-documented as a deviation.
+**Resolved (decision 11).** The baseline reached 10,000 steps as 5,000 + a resumed
+5,000; 6.1 is a **single continuous 10,000-step run**, documented as a deviation from
+the baseline's procedure. Optimizer semantics are identical (AdamW state was restored
+on resume) and the difference is limited to which random windows are drawn.
+**Checkpoint selection: best monitoring-split validation loss across the run**, the
+same policy that selected step 9,750 for the baseline.
+
+**Resolved (decision 13).** Qualitative samples are recorded from the fixed prompt
+"Once there was a little girl" at each 1,000-step mark, matching the baseline runs.
 
 ## 9. Evaluation design (fixed now, not after results)
 
@@ -255,7 +272,11 @@ generations have mechanically fewer opportunities to drift or contradict, so any
 apparent improvement must be checked against a fall in length before being read as a
 consistency improvement.
 
-## 10. Blind rescoring of category 2
+## 10. Blind rescoring of category 2 — run in a separate session
+
+**Resolved (flag 3).** Blind scoring is **not** performed in the session that builds
+the package. This session prepares a self-contained scoring package; the user runs it
+in a fresh Claude Code session with no history of this project.
 
 1. Generate 40 new generations with the frozen harness (8 prompts × seeds 1337–1341,
    top-k 40, cap 150) from `checkpoints/transformer_6_1_best.pt`.
@@ -265,21 +286,34 @@ consistency improvement.
    **before** any score exists; its SHA-256 is recorded in the run's results file.
 4. **Write the blind set**: `eval/blind_set_stage6_1.json` contains only
    `blind_id`, prompt text and generation text, shuffled with `random.Random(1337)`.
-   No checkpoint or source label.
-5. **Score all 80 in one pass** against the committed checklist in
-   `eval_error_analysis.py`, recording per-flag evidence phrases, into
-   `eval/blind_causal_scores_stage6_1.json` keyed by `blind_id`.
-6. **Unblind** via the sealed map; compute per-model means.
-7. **Report drift**: the re-scored baseline 40 against their original Stage 5.5 scores,
-   per checklist item and in mean flags per generation. **6.1 is compared against the
-   re-scored baseline, never against the original Stage 5.5 numbers.**
+   No checkpoint or source label, no ordering signal.
+5. **Assemble the scoring package** `eval/blind_scoring_package/`, self-contained and
+   readable without any project context:
+   - `README.md` — the task, and nothing about which models exist or what is being
+     compared;
+   - `checklist.md` — the four category-2 rules copied verbatim from the committed
+     docstring in `eval_error_analysis.py`, plus the scoring conventions already used
+     (animals/people are characters, inanimate things are objects, outdoor scenery is
+     generic, a generation cut off by the length cap has no ending so
+     `contradicted_ending` is false);
+   - `generations.json` — the 80 shuffled unlabeled items;
+   - `output_format.json` — a template showing the exact required output: per
+     `blind_id`, the four booleans plus an `evidence` object naming the triggering
+     phrase for each true flag.
+6. The fresh session returns `eval/blind_causal_scores_stage6_1.json` keyed by
+   `blind_id`.
+7. **Unblind** via the sealed map; compute per-model means.
+8. **Report drift**: the fresh session's scores for the baseline 40 against their
+   original Stage 5.5 scores, per checklist item and in mean flags per generation.
+   **6.1 is compared against the fresh-session baseline scores, never against the
+   original Stage 5.5 numbers.**
 
-**Limitation to state in the results, not discovered afterwards.** The scorer is the
-same LLM agent that produced the original Stage 5.5 scores and has those 40 baseline
-texts in its prior context. Shuffling and label-stripping remove the *label*, not
-familiarity; recognition of individual texts cannot be ruled out. The drift figure from
-step 7 is a within-scorer consistency measure, not inter-rater agreement. Categories 1
-and 3 are deterministic code and are unaffected by blinding.
+**What this does and does not establish.** Because the fresh session has no history of
+this project, it has not seen the baseline texts before, and the drift figure in step 8
+is **cross-session scorer consistency** — two independent applications of the same
+checklist by the same model class, without shared context. It is not human validation
+and not inter-rater agreement between different scorers. Categories 1 and 3 are
+deterministic code and are unaffected by blinding.
 
 ## 11. Files created or modified
 
@@ -322,29 +356,31 @@ and 3 are deterministic code and are unaffected by blinding.
    measures both so the size of the effect is known rather than assumed.
 4. **Epochs fall from 17.5 to ~1.7.** Inherent to the intervention (§2), not separable
    at fixed compute. Must be stated in the results.
-5. **Near-duplicate leakage.** Exact hashing catches only exact duplicates. TinyStories
-   is synthetic and may contain near-duplicates of validation stories. *Open decision:*
-   add a cheap near-duplicate probe (e.g. hash of the first 100 normalized characters)
-   and report it, or accept exact-match checking only. Recommendation: add the cheap
-   probe and report, since it costs little.
+5. **Near-duplicate leakage.** Exact hashing catches only exact duplicates.
+   **Resolved:** exact duplicates of monitoring or official-validation stories are
+   removed; the first-100-character probe is reported but does not trigger removal, so
+   a residual near-duplicate risk remains and is stated rather than eliminated.
 6. **Monitoring split provenance.** The 1,109 monitoring stories come from the first
    20 MB only, so they are not a random sample of the enlarged corpus. Keeping them
    fixed is correct for comparability, but the monitoring loss for 6.1 measures
    held-out loss on the baseline's region of the corpus. The official validation file
    is the unbiased comparison; monitoring loss is for training curves.
-7. **Blinding is imperfect** (§10).
+7. **Blinding.** **Resolved:** scoring moves to a fresh session with no project
+   history (§10), which removes the familiarity problem within this session. The
+   remaining limit is that both scorers are the same model class applying the same
+   checklist, so agreement measures cross-session consistency, not human validation.
 8. **Sample size**: 40 generations, 25 named at baseline (§9.3).
 9. **Single seed** for training and for the five generation seeds. A difference of the
    size we can detect here could plausibly be seed variance; no seed sweep is planned.
 10. **Checkpoint selection policy** must match the baseline: best monitoring-split
     checkpoint within 10,000 steps, not the final step.
-11. **Single continuous run vs replicating the 5,000 + resume structure** (§8).
-    Recommendation: single run, documented.
+11. **Run structure.** **Resolved:** single continuous 10,000-step run, documented as
+    a deviation; checkpoint chosen by best monitoring-split loss across the run (§8).
 12. **Disk and time**: ~180 MB additional download plus a ~100 MB token stream; training
     time should be unchanged (~30–35 min at the baseline's measured rate), since the
     step count and batch size are identical.
-13. *Open decision:* whether to record a fixed-prompt qualitative sample set for 6.1 at
-    the same 1,000-step marks as the baseline. Cheap, and useful for the write-up.
+13. **Qualitative samples.** **Resolved:** recorded at each 1,000-step mark, as in the
+    baseline runs (§8).
 
 ## 13. Execution order and stop points
 
@@ -353,8 +389,10 @@ and 3 are deterministic code and are unaffected by blinding.
 2. Prepare the token streams; verify the monitoring split is byte-identical.
 3. Train 10,000 steps.
 4. Official validation evaluation of the 6.1 best checkpoint.
-5. Generate the 40 new generations; build the sealed map and blind set. **Stop —
-   the map is committed before scoring.**
-6. Blind-score all 80; unblind; report drift and the comparison.
+5. Generate the 40 new generations; build the sealed map, the blind set and the
+   scoring package. **Stop — the sealed map is committed before scoring, and the
+   package is handed to a fresh session.**
+6. Receive the fresh session's scores; unblind; report cross-session drift and the
+   comparison.
 
 Awaiting approval before step 1.
