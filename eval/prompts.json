@@ -1,0 +1,47 @@
+{
+  "description": "Fixed prompt set for Stage 5 generation evaluation. Treat as frozen: changing these invalidates comparison with earlier runs.",
+  "created": "2026-09-21",
+  "notes": "Prompts have no trailing space and no trailing ellipsis. The BPE tokenizer attaches a leading space to word tokens, so the model's first generated token supplies the space itself.",
+  "prompts": [
+    {
+      "id": "dog_hungry",
+      "text": "The dog was hungry, so it",
+      "probes": "animal subject, causal continuation"
+    },
+    {
+      "id": "girl_store",
+      "text": "The girl went to the store because",
+      "probes": "unnamed character, motivation clause"
+    },
+    {
+      "id": "tom_ball",
+      "text": "Tom picked up the red ball and",
+      "probes": "named character introduced in the prompt, action continuation"
+    },
+    {
+      "id": "lily_key",
+      "text": "Lily found a shiny key under the bed. She",
+      "probes": "named character across a sentence boundary, pronoun reference"
+    },
+    {
+      "id": "rainy_friends",
+      "text": "It was raining outside, so the two friends stayed inside and",
+      "probes": "plural subject, indoor scene"
+    },
+    {
+      "id": "cat_window",
+      "text": "The old cat sat by the window watching the birds. Suddenly,",
+      "probes": "scene setting followed by a turn word"
+    },
+    {
+      "id": "park_dialogue",
+      "text": "Mom said, \"We are going to the park today!\" Ben was so happy that he",
+      "probes": "quoted speech already closed in the prompt, then narration"
+    },
+    {
+      "id": "robot_wish",
+      "text": "Once upon a time, there was a tiny robot who wanted to",
+      "probes": "classic story opening, non-animal character, desire premise"
+    }
+  ]
+}
