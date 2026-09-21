@@ -35,6 +35,7 @@ Baseline reference numbers, all from existing tracked results:
 | Quantity | Value | Source |
 |---|---|---|
 | Official validation loss / PPL | 2.2197 / 9.20 | `results/stage4_transformer_10k.md` |
+| ^ measured on the **full** validation file, which contains 92 stories the baseline trained on (§9.4) | — | `metadata/stage6_1_corpus.json` |
 | Monitoring-split loss | 2.2031 | `results/stage4_transformer_10k.md` |
 | Name retention among named generations | 13/25 (52%) | `eval/stage5_error_analysis.md` |
 | Mean causal flags per generation | 3.33 of 4 | `eval/stage5_error_analysis.md` |
@@ -239,7 +240,8 @@ same policy that selected step 9,750 for the baseline.
 
 | Metric | Source of measurement |
 |---|---|
-| Official validation loss and PPL | `eval_official_valid.py`, same windowing, same stride cross-check, same baseline rows |
+| Official validation loss and PPL, **full file** | `eval_official_valid.py`, same windowing, same stride cross-check, same baseline rows |
+| Official validation loss and PPL, **clean subset** (§9.4) | same methodology, 21,890 stories |
 | Name retention among named generations | Category 1, `eval_error_analysis.py` |
 | Category 1 full breakdown (recurs / changes / disappears / no name, uninitiated names) | same |
 | **Mean causal flags per generation** | Category 2, blind pass (§10) |
@@ -265,7 +267,61 @@ interpreted honestly afterwards. **With 40 generations — 25 of them named at b
 of the category-1 or category-3 rates and 4 points of name retention, so a change of
 "a few points" may be one or two generations changing.
 
-### 9.4 Length check
+### 9.4 Contamination and the clean validation subset (resolved, fixed before training)
+
+The corpus build discovered pre-existing contamination in the baseline's data:
+**92 of the baseline's 21,065 training stories are exact duplicates of official
+validation stories**, and 8 monitoring-split stories are as well. The baseline's own
+train/monitoring split is clean (0 overlap). This was not introduced by Stage 6.1.
+
+Per decision 5 those stories are removed from the 6.1 training corpus, so **6.1's
+training data is not a strict superset of the baseline's** — it is the baseline's data
+minus 92 contaminated stories, plus the new material. The asymmetry favours the
+baseline, which memorised 92 validation stories that 6.1 never sees.
+
+**Resolved: option B.** No retraining; instead, a second evaluation target is defined
+now and will not be changed afterwards.
+
+> **Clean validation subset** = `data/tinystories_valid.txt` minus every story whose
+> exact text duplicates a story in either model's training data or in the monitoring
+> split.
+
+Measured from the validation side: **100 excluded stories** (92 duplicating a baseline
+training story + 8 duplicating a monitoring story; 100 distinct hashes, no
+double-counting), leaving **21,890 of 21,990 stories**. The 6.1 training corpus has
+zero exact overlap with the validation file by construction, so the union reduces to
+those two sources. The 100 excluded hashes are recorded in
+`metadata/stage6_1_corpus.json` under `clean_validation_subset.excluded_story_hashes`,
+fixed before training begins.
+
+**At final evaluation, report four numbers**: official PPL on the **full** validation
+file and on the **clean subset**, for **both** the baseline (step 9,750) and 6.1 — all
+four using the `eval_official_valid.py` methodology unchanged (non-overlapping
+512-token windows, stride cross-check, same baseline rows). The clean-subset pass
+rebuilds the story list, drops the 100 hashes, then re-windows; window boundaries
+therefore differ slightly from the full-file pass, and the two are compared
+like-for-like only within a column.
+
+### 9.5 Notes to carry into the results
+
+These three facts are recorded now so they are reported rather than rediscovered:
+
+1. **Duplicates inside the training corpus were kept.** The corpus contains 2,950
+   exact-duplicate story texts. They are left in place, matching the baseline's
+   condition — the baseline's own 20 MB slice contains such duplicates too, and
+   removing them from 6.1 only would introduce a second asymmetry.
+2. **Near-duplicate openings are common and were not removed.** 11,377 new stories
+   share a first-100-character opening with an official validation story, and 3,366
+   with a monitoring story. TinyStories openings are formulaic, so a shared opening is
+   weak evidence of a duplicated story; this is a residual, unquantified leakage risk
+   that is reported rather than eliminated.
+3. **The Stage 4/5 official perplexity of 9.20 was measured on the full validation
+   file, which contains 92 stories the baseline trained on.** Every prior official-PPL
+   figure in `results/stage4_transformer.md` and `results/stage4_transformer_10k.md`
+   (10.21 at 5k, 9.20 at 9.75k) carries that caveat. The clean-subset number produced
+   at final evaluation is the contamination-free comparison point.
+
+### 9.6 Length check
 
 Mean generation length is reported beside every entity and causal metric. Shorter
 generations have mechanically fewer opportunities to drift or contradict, so any
@@ -388,7 +444,8 @@ deterministic code and are unaffected by blinding.
    manifest** (`<UNK>` rate, overlap counts, seam checks) before spending training time.
 2. Prepare the token streams; verify the monitoring split is byte-identical.
 3. Train 10,000 steps.
-4. Official validation evaluation of the 6.1 best checkpoint.
+4. Official validation of the 6.1 best checkpoint **and** a re-evaluation of the
+   baseline, each on both the full file and the clean subset — four numbers (§9.4).
 5. Generate the 40 new generations; build the sealed map, the blind set and the
    scoring package. **Stop — the sealed map is committed before scoring, and the
    package is handed to a fresh session.**
