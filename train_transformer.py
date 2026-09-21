@@ -234,6 +234,12 @@ def main():
     parser.add_argument("--lr", type=float, default=LEARNING_RATE)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--run-name", default="transformer")
+    parser.add_argument("--resume", default=None,
+                        help="checkpoint to continue from (model AND optimizer state)")
+    parser.add_argument("--log-name", default=None, help="override the training CSV filename")
+    parser.add_argument("--grad-name", default=None, help="override the grad-norm CSV filename")
+    parser.add_argument("--samples-name", default=None, help="override the samples filename")
+    parser.add_argument("--results-file", default=None, help="override the results summary path")
     args = parser.parse_args()
 
     torch.manual_seed(SEED)
@@ -248,27 +254,56 @@ def main():
     optimizer = torch.optim.AdamW(groups, lr=args.lr)
     tokenizer = BPETokenizer.load(SAVE_FILE)
 
-    config = {"steps": args.steps, "batch_size": args.batch_size, "lr": args.lr,
+    tokens_per_step = args.batch_size * CONTEXT_LENGTH
+
+    # --- resume ------------------------------------------------------------
+    start_step, resumed_best = 0, float("inf")
+    if args.resume:
+        checkpoint = torch.load(PROJECT_ROOT / args.resume, map_location=device,
+                                weights_only=False)
+        model.load_state_dict(checkpoint["model"])
+        # Loading the optimizer state is what makes this a continuation rather
+        # than a fresh run at a higher step number: AdamW's first and second
+        # moment estimates carry over instead of being rebuilt from zero.
+        optimizer.load_state_dict(checkpoint["optimizer"])
+        start_step = checkpoint["step"]
+        resumed_best = checkpoint["best_val_loss"]
+        # Keep the same seed, but fast-forward the batch RNG past the draws the
+        # earlier run already made, so this run sees fresh windows instead of
+        # replaying the same ones.
+        high = len(train_stream) - CONTEXT_LENGTH - 1
+        for _ in range(start_step):
+            torch.randint(0, high, (args.batch_size,), device=device)
+        print(f"resumed {args.resume} at step {start_step:,} "
+              f"(best val {resumed_best:.4f}); optimizer state restored, "
+              f"batch RNG fast-forwarded {start_step:,} draws")
+
+    total_steps = start_step + args.steps
+    config = {"steps": total_steps, "new_steps": args.steps, "resumed_from": args.resume,
+              "batch_size": args.batch_size, "lr": args.lr,
               "weight_decay": WEIGHT_DECAY, "grad_clip": GRAD_CLIP, "seed": SEED,
               "context_length": CONTEXT_LENGTH, "vocab_size": VOCAB_SIZE}
-    tokens_per_step = args.batch_size * CONTEXT_LENGTH
 
     print(f"\nrun {args.run_name} | device {device.type} | {model.num_parameters():,} parameters")
     print(f"train {len(train_stream):,} tokens | val {len(val_stream):,} tokens "
           f"({EVAL_BATCHES} fixed eval batches)")
-    print(f"steps {args.steps:,} | batch {args.batch_size} | lr {args.lr} | clip {GRAD_CLIP} "
+    print(f"steps {start_step + 1:,}-{total_steps:,} ({args.steps:,} new) | "
+          f"batch {args.batch_size} | lr {args.lr} | clip {GRAD_CLIP} "
           f"| {tokens_per_step:,} tokens/step")
-    print(f"one epoch = {len(train_stream):,} tokens; this run sees "
-          f"{args.steps * tokens_per_step:,} "
-          f"({args.steps * tokens_per_step / len(train_stream):.1f} epochs)\n")
+    print(f"one epoch = {len(train_stream):,} tokens; by step {total_steps:,} the model will "
+          f"have seen {total_steps * tokens_per_step:,} "
+          f"({total_steps * tokens_per_step / len(train_stream):.1f} epochs)\n")
 
     logs_dir = PROJECT_ROOT / "logs"
     logs_dir.mkdir(exist_ok=True)
     checkpoints_dir = PROJECT_ROOT / "checkpoints"
     checkpoints_dir.mkdir(exist_ok=True)
-    log_path = logs_dir / f"{args.run_name}_training.csv"
-    grad_path = logs_dir / f"{args.run_name}_grad_norms.csv"
-    samples_path = logs_dir / f"{args.run_name}_samples.txt"
+    log_path = logs_dir / (args.log_name or f"{args.run_name}_training.csv")
+    grad_path = logs_dir / (args.grad_name or f"{args.run_name}_grad_norms.csv")
+    samples_path = logs_dir / (args.samples_name or f"{args.run_name}_samples.txt")
+    results_path = PROJECT_ROOT / args.results_file if args.results_file else RESULTS_FILE
+    for path in (log_path, grad_path, samples_path):
+        assert not path.exists(), f"refusing to overwrite {path}"
 
     log_file = log_path.open("w", newline="", encoding="utf-8")
     log = csv.writer(log_file)
@@ -276,17 +311,17 @@ def main():
                   "tokens_seen", "grad_norm_max", "grad_norm_median", "clip_rate"])
 
     all_norms, interval_losses, curve = [], [], []
-    best_val = float("inf")
+    best_val = resumed_best
     samples = []
     start = time.time()
 
-    for step in range(1, args.steps + 1):
+    for step in range(start_step + 1, total_steps + 1):
         x, y = get_batch(train_stream, args.batch_size)
         loss, grad_norm = train_step(model, optimizer, x, y, GRAD_CLIP)
         interval_losses.append(loss)
         all_norms.append(grad_norm)
 
-        if step % EVAL_EVERY == 0 or step == args.steps:
+        if step % EVAL_EVERY == 0 or step == total_steps:
             val_loss = evaluate(model, val_batches)
             train_loss = sum(interval_losses) / len(interval_losses)
             window = all_norms[-len(interval_losses):]
@@ -345,15 +380,18 @@ def main():
     write_summary(args, config, wall_clock, curve, final_train, final_val, best_val,
                   median_norm, max_norm, spikes, overall_clip, samples,
                   tokens_per_step, len(train_stream), log_path, grad_path, samples_path,
-                  checkpoints_dir, device)
-    print(f"\nResults -> {RESULTS_FILE.relative_to(PROJECT_ROOT)}")
+                  checkpoints_dir, device, results_path)
+    print(f"\nResults -> {results_path.relative_to(PROJECT_ROOT)}")
 
 
 def write_summary(args, config, wall_clock, curve, final_train, final_val, best_val,
                   median_norm, max_norm, spikes, overall_clip, samples,
                   tokens_per_step, train_tokens, log_path, grad_path, samples_path,
-                  checkpoints_dir, device):
-    tokens_seen = args.steps * tokens_per_step
+                  checkpoints_dir, device, results_path):
+    total_steps = config["steps"]
+    tokens_seen = total_steps * tokens_per_step
+    resumed = (f", resumed from `{config['resumed_from']}` at step "
+               f"{total_steps - config['new_steps']:,}" if config["resumed_from"] else "")
     spike_line = (f"**{len(spikes)} step(s) above {SPIKE_RATIO}x the median** — "
                   f"{', '.join(f'step {s} ({n:.1f})' for s, n in spikes[:10])}. This is the "
                   f"pattern the lr=3e-3 sweep run showed, where clipping hid it from the loss."
@@ -368,17 +406,18 @@ def write_summary(args, config, wall_clock, curve, final_train, final_val, best_
         "",
         f"- model: {config['context_length']}-token context, d_model 128, 4 heads, d_ff 512, "
         f"6 Pre-LN blocks, tied LM head — 1,767,424 parameters",
-        f"- config: {args.steps:,} steps, batch {args.batch_size}, lr {args.lr}, AdamW "
+        f"- config: {config['new_steps']:,} steps this run (through step "
+        f"{total_steps:,}){resumed}, batch {args.batch_size}, lr {args.lr}, AdamW "
         f"(weight decay {config['weight_decay']} on projection/FFN weights only), "
         f"grad clip {config['grad_clip']}, seed {config['seed']}, device `{device.type}`",
         f"- data: Stage 3's 95/5 split — {train_tokens:,} train tokens, validation from the "
         f"monitoring split (`tinystories_valid.txt` untouched)",
         f"- saw {tokens_seen:,} tokens = {tokens_seen / train_tokens:.1f} epochs",
-        f"- wall clock: {wall_clock / 60:.1f} min ({1000 * wall_clock / args.steps:.0f} ms/step)",
+        f"- wall clock: {wall_clock / 60:.1f} min ({1000 * wall_clock / config['new_steps']:.0f} ms/step)",
         "",
         "| loss (nats) | train | val | val perplexity |",
         "|---|---|---|---|",
-        f"| **final (step {args.steps:,})** | **{final_train:.4f}** | **{final_val:.4f}** "
+        f"| **final (step {total_steps:,})** | **{final_train:.4f}** | **{final_val:.4f}** "
         f"| **{math.exp(final_val):.1f}** |",
         f"| best val | — | {best_val:.4f} | {math.exp(best_val):.1f} |",
         "",
@@ -411,6 +450,15 @@ def write_summary(args, config, wall_clock, curve, final_train, final_val, best_
     for step, train_loss, val_loss in curve:
         lines.append(f"| {step:,} | {train_loss:.4f} | {val_loss:.4f} | {math.exp(val_loss):.1f} |")
 
+    # Is the rate of improvement holding, decelerating, or flattening?
+    marks = [(s, v) for s, _, v in curve if s % 1000 == 0]
+    if len(marks) > 1:
+        lines += ["", "### Validation improvement per 1,000 steps", "",
+                  "| segment | val loss | improvement | ppl |", "|---|---|---|---|"]
+        for (prev_step, prev_val), (step, val) in zip(marks, marks[1:]):
+            lines.append(f"| {prev_step:,} -> {step:,} | {val:.4f} | "
+                         f"-{prev_val - val:.4f} | {math.exp(val):.2f} |")
+
     if samples:
         lines += ["", f"### Samples from \"{PROMPT}\" (temperature 1.0, qualitative only)", ""]
         for step, text in samples:
@@ -421,8 +469,8 @@ def write_summary(args, config, wall_clock, curve, final_train, final_val, best_
         f"checkpoints: `{args.run_name}_best.pt` + periodic in `{checkpoints_dir.name}/` "
         "(both gitignored)",
     ]
-    RESULTS_FILE.parent.mkdir(exist_ok=True)
-    RESULTS_FILE.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    results_path.parent.mkdir(exist_ok=True)
+    results_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
