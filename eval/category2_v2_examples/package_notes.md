@@ -67,7 +67,7 @@ selection. They are to be revealed here only after the package is sealed.
 
 ## Sealing
 
-Version **v2**, sealed 2026-09-22. Repository HEAD at sealing: `1c6cf10`. The package files themselves are committed after this, and that commit is the one to cite for the package contents.
+Version **v2**, sealed 2026-09-22. Repository HEAD at sealing: `1c6cf10`. The package files are committed in `c80ad6a`, which is the commit to cite for the package contents.
 
 | file | sha256 |
 |---|---|
