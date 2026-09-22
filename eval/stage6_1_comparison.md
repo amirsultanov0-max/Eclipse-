@@ -15,9 +15,10 @@ stayed within **±0.013** for 6.1 over 1.67 passes. On the 40-generation structu
 evaluation, blind-scored in a fresh session, mean causal flags per generation moved
 from **2.33 to 2.08** and name retention among named generations from **52% to 65%**,
 while grammaticality was unchanged at 27/40 and generations were about 11% shorter.
-The cross-session drift measured on the baseline's own 40 generations (**3.33 → 2.33**
-mean flags) is four times larger than the difference between the two models, so the
-category-2 comparison carries much less weight than the perplexity result.
+Scorer noise on this checklist is unmeasured: the one repeat scoring of the same
+generations (the baseline's 40, **3.33 → 2.33** mean flags across sessions) is a
+confounded observation rather than a noise estimate (§8), so the category-2 comparison
+carries much less weight than the perplexity result.
 
 ## 2. What was held fixed, and what changed
 
@@ -221,13 +222,13 @@ the checklist more conservatively throughout, most sharply on `contradicted_endi
 (24 → 7; all 7 of its flags fall inside the original 24) and `character_discontinuity`
 (38 → 25).
 
-**This drift is four times the size of the model difference it is being used to
-measure** (1.00 versus 0.25 mean flags). The comparison in §7 remains internally
-valid, because both models were scored in the same pass by the same scorer under the
-same conditions — which is precisely why the design required the baseline to be
-re-scored rather than compared against its Stage 5.5 numbers. But the absolute flag
-rates are clearly scorer-dependent, and a −0.25 difference measured on an instrument
-that moves by 1.00 between sessions should be treated as weak evidence.
+**The 1.00-flag cross-session gap is a confounded observation, not a measurement of
+scorer noise**, so the size of scorer noise on this checklist is unmeasured. The
+comparison in §7 remains internally valid, because both models were scored in the same
+pass by the same scorer under the same conditions — which is precisely why the design
+required the baseline to be re-scored rather than compared against its Stage 5.5
+numbers. But absolute flag rates evidently differ between scoring contexts, and with
+scorer noise unmeasured, the −0.25 model difference should be treated as weak evidence.
 
 ## 9. Notes carried from the pre-registered plan (§9.5)
 
@@ -290,9 +291,9 @@ gap staying near zero instead of opening to +0.243. On the structured evaluation
 entity and causal measures moved in the same direction but by much smaller amounts:
 mean causal flags fell from 2.33 to 2.08, name retention among named generations rose
 from 52% to 65% on an unchanged numerator of 13, and grammaticality was identical at
-27/40. Both of those shifts coincide with an 11% fall in generation length, and the
-causal measure sits on an instrument whose cross-session drift (1.00 mean flags) is
-four times the effect being measured (0.25). Within this evaluation, and from a single
+27/40. Both of those shifts coincide with an 11% fall in generation length, and scorer
+noise on the causal measure is unmeasured — the 1.00-flag cross-session gap is a
+confounded observation, not a noise estimate. Within this evaluation, and from a single
 training seed per model, more data at fixed compute is clearly supported as an
 improvement to next-token prediction, and only weakly supported as an improvement to
 entity and causal consistency. Greater capacity and a different context length remain
