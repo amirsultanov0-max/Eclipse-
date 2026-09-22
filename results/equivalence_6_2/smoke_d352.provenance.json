@@ -1,0 +1,92 @@
+{
+ "created_at": "2026-09-22T23:29:49",
+ "status": "completed",
+ "git": {
+  "commit": "223efaa5a275f5bed72cfd95246c7e5f857926ae",
+  "dirty": true,
+  "untracked": [
+   "eval/category2_retest/pass2_scores.json",
+   "eval/category2_retest/pass3_scores.json"
+  ],
+  "diff_file": "/private/tmp/claude-501/-Users-amirbek-tiny-lm/84be0185-23c0-48bf-87f3-2f1528abec2c/scratchpad/equivalence/smoke_d352.provenance.diff"
+ },
+ "argv": [
+  "train_transformer.py",
+  "--steps",
+  "50",
+  "--seed",
+  "1337",
+  "--d-model",
+  "352",
+  "--n-heads",
+  "4",
+  "--d-ff",
+  "1408",
+  "--train-tokens",
+  "data/stage6_1_train_tokens.npy",
+  "--run-name",
+  "smoke_d352",
+  "--log-name",
+  "smoke_d352_training.csv",
+  "--grad-name",
+  "smoke_d352_grad.csv",
+  "--samples-name",
+  "smoke_d352_samples.txt",
+  "--checkpoint-dir",
+  "/private/tmp/claude-501/-Users-amirbek-tiny-lm/84be0185-23c0-48bf-87f3-2f1528abec2c/scratchpad/equivalence/ckpt_smoke",
+  "--results-file",
+  "/private/tmp/claude-501/-Users-amirbek-tiny-lm/84be0185-23c0-48bf-87f3-2f1528abec2c/scratchpad/equivalence/smoke_d352.md",
+  "--results-title",
+  "d352 smoke test"
+ ],
+ "args": {
+  "steps": 50,
+  "batch_size": 16,
+  "lr": 0.001,
+  "device": "auto",
+  "run_name": "smoke_d352",
+  "resume": null,
+  "train_tokens": "data/stage6_1_train_tokens.npy",
+  "log_name": "smoke_d352_training.csv",
+  "grad_name": "smoke_d352_grad.csv",
+  "samples_name": "smoke_d352_samples.txt",
+  "results_file": "/private/tmp/claude-501/-Users-amirbek-tiny-lm/84be0185-23c0-48bf-87f3-2f1528abec2c/scratchpad/equivalence/smoke_d352.md",
+  "results_title": "d352 smoke test",
+  "seed": 1337,
+  "checkpoint_dir": "/private/tmp/claude-501/-Users-amirbek-tiny-lm/84be0185-23c0-48bf-87f3-2f1528abec2c/scratchpad/equivalence/ckpt_smoke",
+  "d_model": 352,
+  "n_heads": 4,
+  "d_ff": 1408
+ },
+ "seeds": {
+  "seed": 1337,
+  "eval_seed": 1337,
+  "generation_seed": 11337,
+  "generation_rng": "dedicated torch.Generator (decoupled from batches)"
+ },
+ "data": {
+  "train_tokens": {
+   "path": "data/stage6_1_train_tokens.npy",
+   "sha256": "5c25b49be87093ce19f5b7a1d2b67ce2783d062c1a3c3c20c5ce7341ba47d4eb"
+  },
+  "val_tokens": {
+   "path": "data/stage3_val_tokens.npy",
+   "sha256": "9343c0f71f96cc033c4a5ba163af099ea8a33db0d4327af73b3dfae00c52eb9e"
+  }
+ },
+ "resume": null,
+ "environment": {
+  "python": "3.14.7",
+  "torch": "2.14.0",
+  "numpy": "2.5.3"
+ },
+ "fingerprints": {
+  "initial_weights_sha256": "3a5cee38337e2efde0c59caad684398bbef66c32ed0b65478e5f9e047be77511",
+  "eval_batches_sha256": "0b16430f6461735cbd55eb564ec5d5a0426446290c3a5399fd97c00fad63fc8c",
+  "batch_starts_running_sha256": "95d07bf2468c13709b0a961636b3df449d3a1a03e5714d90a5d553305603a2e8",
+  "per_step_log": "logs/smoke_d352_grad.csv",
+  "generation_draws": {},
+  "final_step": 50,
+  "final_weights_sha256": "2963fc85147f0f1c4a8e03b50e4b6d1fa2d683e622599b2ac683750050bfee2c"
+ }
+}

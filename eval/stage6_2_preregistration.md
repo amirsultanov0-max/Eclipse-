@@ -173,6 +173,23 @@ remain the **reference arm's** provenance, because that is the code the referenc
 under. The equivalence evidence linking the two sets of hashes is recorded alongside them, and the
 whole change is documented under section 13 **before** any training.
 
+### Capacity-arm provenance (added 2026-09-22, option 1 implemented)
+
+| item | sha256 |
+|---|---|
+| `train_transformer.py` post-change | `57d4e57eb7d6e6bff6c8042e2842109b0cd2f72949ef0b3ee21548842fe393a5` |
+| `model/transformer.py` | `63ad52cdf138092233f9752dd7393f7af4790ff5276f4886294d0afbe93ca8f0` — unchanged by the edit |
+
+The reference arm's `c4db503` hashes above stand unaltered. `model/transformer.py` is byte-identical
+across both arms; only `train_transformer.py` differs, by the additive flags in section 10.
+
+**Equivalence evidence:** `results/equivalence_6_2/`. At default arguments, seed 1337, 6.1 config,
+1,001 steps on CPU, the post-change code reproduced the pre-change code bitwise on per-step loss,
+per-step gradient norm, per-step batch start positions, the whole per-step log, the initial-weights
+and eval-batch fingerprints, the final weights, and the step-1,000 generation text and draw count.
+On MPS the deterministic quantities (initial weights, eval batches, the running batch-start hash
+over all 1,001 steps) are likewise bitwise equal. **VERIFIED**
+
 ### Before any d352 training
 
 1. Verify the repository tree is clean.
@@ -187,9 +204,16 @@ whole change is documented under section 13 **before** any training.
 
 ## 10. OPEN ITEM — the capacity arm cannot be launched under the current code
 
-**Registered resolution: option 1 below, decided 2026-09-22. Not yet implemented.** No training
-may start until the change is implemented, the equivalence check passes, and section 9 and section
-13 are updated.
+**Registered resolution: option 1 below. Decided and IMPLEMENTED 2026-09-22; equivalence verified.**
+Section 9 carries the capacity-arm hashes and the evidence pointer; section 13 records the
+amendment. The evidence is in `results/equivalence_6_2/`.
+
+**Deviation to note.** The bitwise comparison was run on **CPU**, not MPS. MPS is not
+bit-reproducible run to run on this machine: rerunning the recorded `sr_data200mb_s1337` run's first
+1,001 steps with unchanged code and the same seed reproduced every batch start position but diverged
+in loss from step 5, so no code change can be verified bitwise on MPS. CPU determinism was confirmed
+with an identical-code control before it was relied on. The MPS quantities that are deterministic
+were compared on MPS and match. **VERIFIED**
 
 `train_transformer.py` constructs the model as `TinyTransformer()` with no architecture arguments,
 so d_model, d_ff and head count come from the constants in `model/transformer.py` (d_model 128,
@@ -254,5 +278,27 @@ and batch size.
 ## 13. Changes after preregistration
 
 Any modification to the locked design requires explicit documentation **before** training, recording
-what changed and why. No change may be made silently after observing results. The section 10
-resolution is itself such a change and must be documented here before the capacity arm is trained.
+what changed and why. No change may be made silently after observing results.
+
+### Amendment 1 — 2026-09-22, before any training
+
+**What changed.** `train_transformer.py` gained three additive arguments, `--d-model`, `--n-heads`
+and `--d-ff`, each defaulting to the corresponding constant in `model/transformer.py`. The model is
+now constructed from those arguments, and the run config records them plus the resulting parameter
+count. No RNG-consuming call was added, removed or reordered, and nothing before the first random
+draw changed. `model/transformer.py` was not modified.
+
+**Why.** Section 10: the capacity arm cannot be built otherwise, because the pre-change code
+constructed the model with no architecture arguments.
+
+**Verification.** The 1,001-step prefix harness at default arguments, seed 1337, 6.1 config, covering
+the step-1,000 in-training generation. Every compared quantity was bitwise equal (section 9 and
+`results/equivalence_6_2/`), and the batch-start stream was additionally reproduced independently to
+confirm the generation still draws only from its own generator and leaves step 1,001 untouched.
+
+**Consequence.** The reference arm is NOT rerun. Its provenance stays at `c4db503`, justified by
+demonstrated bitwise equivalence rather than by an unchanged file hash.
+
+**Mechanical check.** A 50-step smoke test at `--d-model 352 --n-heads 4 --d-ff 1408` built exactly
+**10,537,472** parameters with d_ff 1408, 4 heads, 6 blocks, context 512, vocab 4,000, matching the
+registered capacity arm in section 2. Scratch output only; this was not training.

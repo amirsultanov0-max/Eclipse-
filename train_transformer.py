@@ -41,7 +41,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from model.transformer import CONTEXT_LENGTH, VOCAB_SIZE, TinyTransformer
+from model.transformer import (CONTEXT_LENGTH, D_FF, D_MODEL, NUM_HEADS, VOCAB_SIZE,
+                               TinyTransformer)
 from tokenizer.bpe_tokenizer import SAVE_FILE, BPETokenizer
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -322,6 +323,14 @@ def main():
                         help="model init and training-batch sampling (default 1337)")
     parser.add_argument("--checkpoint-dir", default="checkpoints",
                         help="where checkpoints go (relative to the repo, or absolute)")
+    # Architecture. The defaults are model/transformer.py's own constants, so a run
+    # that passes none of these builds exactly the model every earlier run built.
+    parser.add_argument("--d-model", type=int, default=D_MODEL,
+                        help=f"model width (default {D_MODEL})")
+    parser.add_argument("--n-heads", type=int, default=NUM_HEADS,
+                        help=f"attention heads (default {NUM_HEADS})")
+    parser.add_argument("--d-ff", type=int, default=D_FF,
+                        help=f"feed-forward width (default {D_FF})")
     args = parser.parse_args()
 
     # --- output paths and provenance: pure I/O, no random draws -------------
@@ -387,7 +396,8 @@ def main():
     val_batches = make_fixed_batches(val_stream, EVAL_BATCHES, args.batch_size,
                                      seed=EVAL_SEED)
 
-    model = TinyTransformer().to(device)
+    model = TinyTransformer(d_model=args.d_model, num_heads=args.n_heads,
+                            d_ff=args.d_ff).to(device)
     groups, rows = make_param_groups(model, WEIGHT_DECAY)
     describe_param_groups(rows, WEIGHT_DECAY)
     optimizer = torch.optim.AdamW(groups, lr=args.lr)
@@ -438,6 +448,8 @@ def main():
               "weight_decay": WEIGHT_DECAY, "grad_clip": GRAD_CLIP, "seed": args.seed,
               "eval_seed": EVAL_SEED, "generation_seed": args.seed + GENERATION_SEED_OFFSET,
               "context_length": CONTEXT_LENGTH, "vocab_size": VOCAB_SIZE,
+              "d_model": args.d_model, "n_heads": args.n_heads, "d_ff": args.d_ff,
+              "parameters": model.num_parameters(),
               "args": vars(args),
               "provenance": {"git": provenance["git"], "data": provenance["data"],
                              "fingerprints": provenance["fingerprints"],

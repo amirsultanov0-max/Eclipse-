@@ -1,0 +1,85 @@
+{
+ "created_at": "2026-09-22T23:08:49",
+ "status": "completed",
+ "git": {
+  "commit": "223efaa5a275f5bed72cfd95246c7e5f857926ae",
+  "dirty": false,
+  "untracked": [
+   "eval/category2_retest/pass2_scores.json",
+   "eval/category2_retest/pass3_scores.json"
+  ],
+  "diff_file": null
+ },
+ "argv": [
+  "train_transformer.py",
+  "--steps",
+  "1001",
+  "--seed",
+  "1337",
+  "--train-tokens",
+  "data/stage6_1_train_tokens.npy",
+  "--run-name",
+  "eq_pre",
+  "--log-name",
+  "eq_pre_training.csv",
+  "--grad-name",
+  "eq_pre_grad.csv",
+  "--samples-name",
+  "eq_pre_samples.txt",
+  "--checkpoint-dir",
+  "/private/tmp/claude-501/-Users-amirbek-tiny-lm/84be0185-23c0-48bf-87f3-2f1528abec2c/scratchpad/equivalence/ckpt_pre",
+  "--results-file",
+  "/private/tmp/claude-501/-Users-amirbek-tiny-lm/84be0185-23c0-48bf-87f3-2f1528abec2c/scratchpad/equivalence/eq_pre.md",
+  "--results-title",
+  "Equivalence check - pre-change code"
+ ],
+ "args": {
+  "steps": 1001,
+  "batch_size": 16,
+  "lr": 0.001,
+  "device": "auto",
+  "run_name": "eq_pre",
+  "resume": null,
+  "train_tokens": "data/stage6_1_train_tokens.npy",
+  "log_name": "eq_pre_training.csv",
+  "grad_name": "eq_pre_grad.csv",
+  "samples_name": "eq_pre_samples.txt",
+  "results_file": "/private/tmp/claude-501/-Users-amirbek-tiny-lm/84be0185-23c0-48bf-87f3-2f1528abec2c/scratchpad/equivalence/eq_pre.md",
+  "results_title": "Equivalence check - pre-change code",
+  "seed": 1337,
+  "checkpoint_dir": "/private/tmp/claude-501/-Users-amirbek-tiny-lm/84be0185-23c0-48bf-87f3-2f1528abec2c/scratchpad/equivalence/ckpt_pre"
+ },
+ "seeds": {
+  "seed": 1337,
+  "eval_seed": 1337,
+  "generation_seed": 11337,
+  "generation_rng": "dedicated torch.Generator (decoupled from batches)"
+ },
+ "data": {
+  "train_tokens": {
+   "path": "data/stage6_1_train_tokens.npy",
+   "sha256": "5c25b49be87093ce19f5b7a1d2b67ce2783d062c1a3c3c20c5ce7341ba47d4eb"
+  },
+  "val_tokens": {
+   "path": "data/stage3_val_tokens.npy",
+   "sha256": "9343c0f71f96cc033c4a5ba163af099ea8a33db0d4327af73b3dfae00c52eb9e"
+  }
+ },
+ "resume": null,
+ "environment": {
+  "python": "3.14.7",
+  "torch": "2.14.0",
+  "numpy": "2.5.3"
+ },
+ "fingerprints": {
+  "initial_weights_sha256": "a389751c22aad283356919a459d6ad84464c95b5f528ac61d1c60ac5320282e9",
+  "eval_batches_sha256": "0b16430f6461735cbd55eb564ec5d5a0426446290c3a5399fd97c00fad63fc8c",
+  "batch_starts_running_sha256": "816a41a861fe9c844b4b5fdd29d80b31892dee0dfa55c6cf03c24ad45a3a80ef",
+  "per_step_log": "logs/eq_pre_grad.csv",
+  "generation_draws": {
+   "1000": 60
+  },
+  "final_step": 1001,
+  "final_weights_sha256": "fbdb2409b76828747b81995a75715fa9b562b61fc5c0a52b3d1940fe8f2f6621"
+ }
+}
