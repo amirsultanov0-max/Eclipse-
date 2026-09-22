@@ -1,0 +1,91 @@
+{
+ "created_at": "2026-09-22T16:43:25",
+ "status": "completed",
+ "git": {
+  "commit": "0d552082c2ef679cfeaef8e54b2150f4d69af48f",
+  "dirty": false,
+  "untracked": [],
+  "diff_file": null
+ },
+ "argv": [
+  "train_transformer.py",
+  "--run-name",
+  "sr_data200mb_s1337",
+  "--seed",
+  "1337",
+  "--steps",
+  "10000",
+  "--train-tokens",
+  "data/stage6_1_train_tokens.npy",
+  "--checkpoint-dir",
+  "checkpoints/seed_replication/sr_data200mb_s1337",
+  "--log-name",
+  "seed_replication/sr_data200mb_s1337/training.csv",
+  "--grad-name",
+  "seed_replication/sr_data200mb_s1337/per_step.csv",
+  "--samples-name",
+  "seed_replication/sr_data200mb_s1337/samples.txt",
+  "--results-file",
+  "results/seed_replication/sr_data200mb_s1337.md",
+  "--results-title",
+  "Seed replication \u2014 200 MB (6.1), seed 1337"
+ ],
+ "args": {
+  "steps": 10000,
+  "batch_size": 16,
+  "lr": 0.001,
+  "device": "auto",
+  "run_name": "sr_data200mb_s1337",
+  "resume": null,
+  "train_tokens": "data/stage6_1_train_tokens.npy",
+  "log_name": "seed_replication/sr_data200mb_s1337/training.csv",
+  "grad_name": "seed_replication/sr_data200mb_s1337/per_step.csv",
+  "samples_name": "seed_replication/sr_data200mb_s1337/samples.txt",
+  "results_file": "results/seed_replication/sr_data200mb_s1337.md",
+  "results_title": "Seed replication \u2014 200 MB (6.1), seed 1337",
+  "seed": 1337,
+  "checkpoint_dir": "checkpoints/seed_replication/sr_data200mb_s1337"
+ },
+ "seeds": {
+  "seed": 1337,
+  "eval_seed": 1337,
+  "generation_seed": 11337,
+  "generation_rng": "dedicated torch.Generator (decoupled from batches)"
+ },
+ "data": {
+  "train_tokens": {
+   "path": "data/stage6_1_train_tokens.npy",
+   "sha256": "5c25b49be87093ce19f5b7a1d2b67ce2783d062c1a3c3c20c5ce7341ba47d4eb"
+  },
+  "val_tokens": {
+   "path": "data/stage3_val_tokens.npy",
+   "sha256": "9343c0f71f96cc033c4a5ba163af099ea8a33db0d4327af73b3dfae00c52eb9e"
+  }
+ },
+ "resume": null,
+ "environment": {
+  "python": "3.14.7",
+  "torch": "2.14.0",
+  "numpy": "2.5.3"
+ },
+ "fingerprints": {
+  "initial_weights_sha256": "a389751c22aad283356919a459d6ad84464c95b5f528ac61d1c60ac5320282e9",
+  "eval_batches_sha256": "0b16430f6461735cbd55eb564ec5d5a0426446290c3a5399fd97c00fad63fc8c",
+  "batch_starts_running_sha256": "8e1884c01f339e737dbbf5acb133ec7598c33114e316b0a75a0d8cea2e22cf90",
+  "per_step_log": "logs/seed_replication/sr_data200mb_s1337/per_step.csv",
+  "generation_draws": {
+   "1000": 60,
+   "2000": 60,
+   "3000": 60,
+   "4000": 60,
+   "5000": 60,
+   "6000": 60,
+   "7000": 60,
+   "8000": 60,
+   "9000": 60,
+   "10000": 60
+  },
+  "final_step": 10000,
+  "final_weights_sha256": "f2892b7a6bdef41b03c8e7adadd96c31ecc528fbd553ef4d0e33a7f973c2b9b5"
+ }
+}
