@@ -161,6 +161,7 @@ re-deriving them.
 | `data/stage6_1_train_tokens.npy` (200 MB training stream) | `5c25b49be87093ce19f5b7a1d2b67ce2783d062c1a3c3c20c5ce7341ba47d4eb` |
 | `data/stage3_val_tokens.npy` (monitoring stream) | `9343c0f71f96cc033c4a5ba163af099ea8a33db0d4327af73b3dfae00c52eb9e` |
 | `tokenizer/bpe_4000.json` | `e3876f558896533d13b7818282c6b19b55cbf205390ad4ee9e982d105762d3df` |
+| `eval_official_valid.py` pre-change, used for the reference arm's official evals | `06293fa4de5085432703be40e99e7f88830a9d126733b57275f740becd51c931` |
 
 Both source files are byte-identical in the working tree at HEAD `842cbcb` to their content at
 `c4db503`, so no change has entered since the reference arm was trained. **VERIFIED**
@@ -179,6 +180,12 @@ whole change is documented under section 13 **before** any training.
 |---|---|
 | `train_transformer.py` post-change | `57d4e57eb7d6e6bff6c8042e2842109b0cd2f72949ef0b3ee21548842fe393a5` |
 | `model/transformer.py` | `63ad52cdf138092233f9752dd7393f7af4790ff5276f4886294d0afbe93ca8f0` — unchanged by the edit |
+| `eval_official_valid.py` post-change | `ccc7bb9bd0b98aa2d2349e58329188db17d11e3a47686d77ad9c58edd187310a` |
+
+`eval_official_valid.py` defines the primary metric, so it is frozen under the same discipline as
+the training code. Its omission from the original list was an oversight in this document, not a
+licence to change it freely; both its pre- and post-change hashes are recorded, and the pre-change
+hash is the one the reference arm's published official losses were produced under.
 
 The reference arm's `c4db503` hashes above stand unaltered. `model/transformer.py` is byte-identical
 across both arms; only `train_transformer.py` differs, by the additive flags in section 10.
@@ -302,3 +309,30 @@ demonstrated bitwise equivalence rather than by an unchanged file hash.
 **Mechanical check.** A 50-step smoke test at `--d-model 352 --n-heads 4 --d-ff 1408` built exactly
 **10,537,472** parameters with d_ff 1408, 4 heads, 6 blocks, context 512, vocab 4,000, matching the
 registered capacity arm in section 2. Scratch output only; this was not training.
+
+### Amendment 2 — 2026-09-22, before any training
+
+**What changed.** `eval_official_valid.py` now builds the model from the checkpoint's own `config`
+(`d_model`, `n_heads`, `d_ff`), falling back to `model/transformer.py`'s constants when a checkpoint
+carries no such keys. Nothing else changed: no scoring, windowing, subset or reporting logic, and no
+output format.
+
+**Why.** The pre-change code built `TinyTransformer()` with default dimensions and then loaded the
+checkpoint into it, so it raised a shape mismatch on any d352 checkpoint. Every capacity-arm run
+would have trained for about 1.7 h and then failed at evaluation.
+
+**Verification.** Both official evaluations were rerun on the reference-arm checkpoint
+`sr_data200mb_s1337_best.pt` with the post-change code:
+
+| evaluation | committed | rerun | result |
+|---|---|---|---|
+| full file | 2.1065 (ppl 8.22), cross-check 2.1065 over 4,796,928 tokens | 2.1065 (ppl 8.22), cross-check 2.1065 over 4,796,928 tokens | match |
+| clean subset | 2.1080 (ppl 8.23), cross-check 2.1079 over 4,766,208 tokens | 2.1080 (ppl 8.23), cross-check 2.1079 over 4,766,208 tokens | match |
+
+Both regenerated reports are byte-identical to the committed ones apart from their timestamp line
+(`results/equivalence_6_2/regression_official_*.md`). Reference-arm checkpoints carry no architecture
+keys and take the fallback path, so they are scored by exactly the model they were trained with; a
+d352 checkpoint loads and reports 10,537,472 parameters. **VERIFIED**
+
+**Consequence.** The reference arm is NOT rerun, and its published official losses stand unchanged,
+since the rerun reproduces them exactly.

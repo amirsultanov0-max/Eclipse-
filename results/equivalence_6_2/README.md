@@ -46,6 +46,15 @@ model so its init draws are consumed in the same order, then draw 1,001 batches)
 matched on both CPU and MPS, including step 1,001, the step immediately after the step-1,000
 in-training generation. Generation therefore drew only from its own generator.
 
+## Amendment 2: eval reads the architecture from the checkpoint config
+
+`eval_official_valid.py` pre-change sha256 `06293fa4…`, post-change `ccc7bb9b…`. Both official
+evaluations were rerun on `sr_data200mb_s1337_best.pt` with the post-change code and reproduced the
+committed values exactly: full file 2.1065 (cross-check 2.1065 over 4,796,928 tokens), clean subset
+2.1080 (cross-check 2.1079 over 4,766,208 tokens). The regenerated reports
+(`regression_official_full.md`, `regression_official_clean.md`) are byte-identical to the committed
+ones apart from their timestamp line.
+
 ## Files
 
 | file | contents |
@@ -55,3 +64,4 @@ in-training generation. Generation therefore drew only from its own generator.
 | `eq_pre_cpu_samples.txt`, `eq_post_cpu_samples.txt` | the step-1,000 generation, CPU, pre and post |
 | `eq_*.provenance.json` | run manifests with the weight, eval-batch and batch-start fingerprints |
 | `smoke_d352.provenance.json` | the 50-step d352 smoke test: 10,537,472 parameters, d_ff 1408, 4 heads |
+| `regression_official_full.md`, `regression_official_clean.md` | amendment 2 regression: both official evals rerun on the reference-arm seed-1337 checkpoint |

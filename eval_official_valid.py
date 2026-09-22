@@ -30,7 +30,8 @@ import torch.nn.functional as F
 
 from baselines import _pair_counts
 from model.bigram import BigramModel
-from model.transformer import CONTEXT_LENGTH, VOCAB_SIZE, TinyTransformer
+from model.transformer import (CONTEXT_LENGTH, D_FF, D_MODEL, NUM_HEADS, VOCAB_SIZE,
+                               TinyTransformer)
 from tokenizer.bpe_tokenizer import SAVE_FILE, STORY_SEPARATOR, BPETokenizer
 from train_transformer import PROJECT_ROOT, RESULTS_FILE, TRAIN_TOKENS, pick_device
 
@@ -172,7 +173,13 @@ def main():
           f"dropped {dropped} tokens in the final partial window")
 
     checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
-    model = TinyTransformer().to(device)
+    # Build the architecture the checkpoint was trained with, taken from its own config.
+    # Checkpoints written before the Stage 6.2 architecture flags carry no such keys, so
+    # they fall back to the module defaults — which is exactly the model they used.
+    config = checkpoint.get("config") or {}
+    model = TinyTransformer(d_model=config.get("d_model", D_MODEL),
+                            num_heads=config.get("n_heads", NUM_HEADS),
+                            d_ff=config.get("d_ff", D_FF)).to(device)
     model.load_state_dict(checkpoint["model"])
     model.eval()
     print(f"  checkpoint: step {checkpoint['step']:,}, "
