@@ -1,6 +1,7 @@
 venv/
 checkpoints/
-logs/
+logs/*
+!logs/README.md
 __pycache__/
 *.pyc
 .DS_Store
