@@ -1,0 +1,1 @@
+Read README.md and follow its instructions exactly. Score every generation in generations.json using the definitions in checklist.md. Return your scores in exactly the format specified in output_format.json. Output only the JSON, nothing else.
