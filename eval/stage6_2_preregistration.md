@@ -261,10 +261,62 @@ training semantics — while replacing hash equality with demonstrated bitwise e
 
 ## Secondary generation evaluation — PENDING CATEGORY 2 RELIABILITY
 
-The secondary schema is **not** locked here, and no Category 2 analysis is invented in advance. It
-will be finalized only after Pass 4 vs Pass 5 reliability has been assessed on the sealed v2 package.
-The primary validation-loss protocol in sections 6 and 7 is already locked and does not depend on
-that outcome.
+**Status: resolved by Amendment 3 (section 13), 2026-09-23, before any training.** The text as
+originally registered is kept here for the record, followed by the schema it deferred.
+
+> The secondary schema is **not** locked here, and no Category 2 analysis is invented in advance. It
+> will be finalized only after Pass 4 vs Pass 5 reliability has been assessed on the sealed v2 package.
+> The primary validation-loss protocol in sections 6 and 7 is already locked and does not depend on
+> that outcome.
+
+### Schema (Amendment 3)
+
+**Category 2 survives.** On the sealed v2 package (commit `c80ad6a`), passes 4 and 5 agreed on
+**301 of 320 judgments (94.1%)**, with **64 of 80** generations scored identically on all four items.
+Details in `eval/category2_retest/NOTES.md`.
+
+**Primary secondary metrics**, reported for both arms:
+
+| item | Cohen's kappa (pass 4 vs 5) | agreement |
+|---|---|---|
+| `unexplained_object` | 0.87 | 93.8% |
+| `uncaused_action` | 0.77 | 95.0% |
+| `character_discontinuity` | 0.88 | 93.8% |
+
+**`contradicted_ending` is reported but flagged as low-reliability** and carries no claim on its own:
+kappa 0.51, flagged only 7 and 4 times out of 80, and the v2 package contains no positive worked
+example of it (see the known limitation in `eval/category2_v2_examples/package_notes.md`).
+
+**Procedure.** Each arm — reference arm (reused) and capacity arm (new) — gets **two independent
+scoring passes**, each in a fresh incognito chat, with the sealed v2 package, the same opening
+message (`eval/category2_retest/opening_message.txt`) and the same model. Four passes in total. For
+each item and each arm, report the **mean of the two passes** and the **between-pass spread**.
+
+**The rubric is reused; the generations are not.** The 80 items in the sealed v2 package's
+`generations.json` come from the Stage 6.1 comparison and are NOT the 6.2 arms, so a new blind set
+is built from the 6.2 arms' checkpoints by the same procedure as the 6.1 set:
+
+- generated with the same settings as the 6.1 set: the 8 prompts in `eval/prompts.json`, top-k 40,
+  temperature 1.0, seeds 1337-1341, a 150-token cap, 40 generations per model;
+- shuffled and label-free, carrying no indication of which arm produced an item;
+- with its own sealed map from blind id to source, sealed before scoring and not opened until the
+  scoring passes are complete;
+- hashed before scoring, with the hashes recorded and verified at the start of every pass;
+- `checklist.md`, `examples.md`, `README.md` and `output_format.json` carried over **byte-identical**
+  from the sealed v2 package (hashes in `eval/category2_v2_examples/package_notes.md`), so only
+  `generations.json` differs between the two packages.
+
+The kappa values were measured on Stage 6.1 text and are assumed, not demonstrated, to hold on the
+new 6.2 blind set. This assumption is not separately re-tested, because the design already provides
+the check: with two passes per arm, four passes over the new blind set, between-pass agreement is
+measured as part of the experiment. If the observed between-pass agreement on the new blind set falls
+materially below the v2 baseline (94.1% overall, per-item 93.8-95.0%), the secondary results are
+reported as unreliable rather than interpreted. This judgment is made from the agreement figures
+alone, before any comparison between arms.
+
+**No verdict rule is pre-registered for the secondary metrics.** They are exploratory. Only official
+validation loss carries the ROBUST / INCONCLUSIVE rule in section 7, and no secondary result can
+change that verdict.
 
 ## 11. Stopping rule
 
@@ -336,3 +388,25 @@ d352 checkpoint loads and reports 10,537,472 parameters. **VERIFIED**
 
 **Consequence.** The reference arm is NOT rerun, and its published official losses stand unchanged,
 since the rerun reproduces them exactly.
+
+### Amendment 3 — 2026-09-23, before any training
+
+**What changed.** The section headed "Secondary generation evaluation — PENDING CATEGORY 2
+RELIABILITY" was resolved: the secondary schema is now set out there, and the section's original
+text is preserved above it.
+
+**Why.** That section deferred the schema until Pass 4 vs Pass 5 reliability had been measured on
+the sealed v2 package. It has now been measured, so the condition is discharged.
+
+**Evidence.** Passes 4 and 5, scored in fresh incognito chats on the sealed v2 package with the same
+opening message and model, agreed on 301 of 320 judgments (94.1%), with 64 of 80 generations scored
+identically on all four items; per-item kappa 0.87, 0.77, 0.88 and 0.51. Files and validation:
+`eval/category2_retest/pass4_scores.json`, `pass5_scores.json` and `NOTES.md`, commit `01ca3bf`.
+**VERIFIED**
+
+**Known gap, carried forward.** The v1 passes 2 and 3 were never recovered, so no v1 test-retest
+figure exists and the rubric-change diagnostics (v1 vs v2) are impossible, not deferred. This does
+not affect the schema above, which rests only on the v2 measurement.
+
+**Consequence.** No change to the primary metric, the verdict rule, the arms or the training
+protocol. Nothing about the capacity comparison in sections 6 and 7 depends on this section.
