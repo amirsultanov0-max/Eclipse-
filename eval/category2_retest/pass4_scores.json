@@ -1,0 +1,804 @@
+
+{
+ "scores": {
+  "gen_0001": {
+   "unexplained_object": false,
+   "uncaused_action": false,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {}
+  },
+  "gen_0002": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "the present",
+    "uncaused_action": "her mommy had helped her go back"
+   }
+  },
+  "gen_0003": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "gave the car back",
+    "uncaused_action": "Ben was relieved"
+   }
+  },
+  "gen_0004": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "the friends were happy",
+    "character_discontinuity": "helped their friends into the room"
+   }
+  },
+  "gen_0005": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "right in the hole",
+    "uncaused_action": "played with a band-aid",
+    "character_discontinuity": "Tom and Lily were very happy"
+   }
+  },
+  "gen_0006": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "how to lock the lock",
+    "uncaused_action": "The girl was so happy again",
+    "character_discontinuity": "Grandma said yes"
+   }
+  },
+  "gen_0007": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "put it on his pillow",
+    "uncaused_action": "Joe was relieved"
+   }
+  },
+  "gen_0008": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": true,
+   "evidence": {
+    "uncaused_action": "they finally folded a new toy",
+    "character_discontinuity": "she could help her daughter",
+    "contradicted_ending": "Lily felt happy that she could help her daughter"
+   }
+  },
+  "gen_0009": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "found the park seats in his mouth"
+   }
+  },
+  "gen_0010": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "open the door",
+    "uncaused_action": "Lily wanted to touch the doors again"
+   }
+  },
+  "gen_0011": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "waited and waited to find out why it went so far away",
+    "character_discontinuity": "The robot and his brother went home together"
+   }
+  },
+  "gen_0012": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "Timmy's house",
+    "uncaused_action": "Jack was very sad",
+    "character_discontinuity": "Jack was very sad"
+   }
+  },
+  "gen_0013": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "He was glad he could help the red ball play with them"
+   }
+  },
+  "gen_0014": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "their own toys",
+    "uncaused_action": "they were still stuck"
+   }
+  },
+  "gen_0015": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "the cheese",
+    "uncaused_action": "The little mouse was very happy",
+    "character_discontinuity": "The little mouse was very happy"
+   }
+  },
+  "gen_0016": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": true,
+   "evidence": {
+    "uncaused_action": "the cat was dead",
+    "character_discontinuity": "the mouse noticed",
+    "contradicted_ending": "And they lived happily ever after"
+   }
+  },
+  "gen_0017": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": true,
+   "evidence": {
+    "uncaused_action": "The lady was still scared",
+    "character_discontinuity": "The lady was still scared",
+    "contradicted_ending": "The little girl thanked the old owl"
+   }
+  },
+  "gen_0018": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "was feeling sorry",
+    "character_discontinuity": "the dog heard some noise"
+   }
+  },
+  "gen_0019": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "they went inside to find the little mouse",
+    "character_discontinuity": "asked the owl"
+   }
+  },
+  "gen_0020": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "planted them",
+    "character_discontinuity": "Tom was excited"
+   }
+  },
+  "gen_0021": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "drank the water",
+    "uncaused_action": "The bunny hopped back inside"
+   }
+  },
+  "gen_0022": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "The necklace was a rock",
+    "uncaused_action": "thanked her little brother for her help"
+   }
+  },
+  "gen_0023": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": true,
+   "evidence": {
+    "uncaused_action": "He felt happy and relieved",
+    "contradicted_ending": "The orange ball had a big smile"
+   }
+  },
+  "gen_0024": {
+   "unexplained_object": false,
+   "uncaused_action": false,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {}
+  },
+  "gen_0025": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "take the toy and put it in her backpack",
+    "uncaused_action": "she had made a new friend"
+   }
+  },
+  "gen_0026": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "got on the bike",
+    "uncaused_action": "hugged their new toys",
+    "character_discontinuity": "Lily said"
+   }
+  },
+  "gen_0027": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "Answer thanked the old cat",
+    "character_discontinuity": "the boy's fur got cold"
+   }
+  },
+  "gen_0028": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "on the basket",
+    "uncaused_action": "took some carrots to the store"
+   }
+  },
+  "gen_0029": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "eat the meal",
+    "uncaused_action": "The dog tried to resist",
+    "character_discontinuity": "The man walked away"
+   }
+  },
+  "gen_0030": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "He felt much better now",
+    "character_discontinuity": "catch the pup"
+   }
+  },
+  "gen_0031": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "lost his toy",
+    "uncaused_action": "The robot was very sad",
+    "character_discontinuity": "gave the little boy some money"
+   }
+  },
+  "gen_0032": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "with the hose",
+    "uncaused_action": "thanked him for taking such a long time",
+    "character_discontinuity": "the boy would stay in the house"
+   }
+  },
+  "gen_0033": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "safe in the box",
+    "uncaused_action": "the robot and the robot were very sad",
+    "character_discontinuity": "the robot and the robot were very sad"
+   }
+  },
+  "gen_0034": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "started to get rid of the trees"
+   }
+  },
+  "gen_0035": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "started barking loudly",
+    "character_discontinuity": "Timmy went to the dog"
+   }
+  },
+  "gen_0036": {
+   "unexplained_object": false,
+   "uncaused_action": false,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {}
+  },
+  "gen_0037": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "said, \"Help! Who are you?\"",
+    "character_discontinuity": "Lily screamed"
+   }
+  },
+  "gen_0038": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "took the bow",
+    "uncaused_action": "The little robot thanked the boy",
+    "character_discontinuity": "the other robots"
+   }
+  },
+  "gen_0039": {
+   "unexplained_object": true,
+   "uncaused_action": false,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "your favorite food"
+   }
+  },
+  "gen_0040": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "your toy box",
+    "uncaused_action": "She was glad she had her new toy"
+   }
+  },
+  "gen_0041": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "going to the jet",
+    "uncaused_action": "Why are you going to the jet?"
+   }
+  },
+  "gen_0042": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "destroyed their house",
+    "character_discontinuity": "The dog and the dog ran back inside"
+   }
+  },
+  "gen_0043": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "put the pieces together",
+    "uncaused_action": "why it was so tasty"
+   }
+  },
+  "gen_0044": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "look for the det",
+    "uncaused_action": "They ran outside",
+    "character_discontinuity": "watched their friends"
+   }
+  },
+  "gen_0045": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "I am glad you liked it",
+    "character_discontinuity": "Tim smiled"
+   }
+  },
+  "gen_0046": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "on the shelf",
+    "uncaused_action": "Lily could not find her mom",
+    "character_discontinuity": "Grandma saw the key"
+   }
+  },
+  "gen_0047": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "the bird's book",
+    "uncaused_action": "The old dog was very happy",
+    "character_discontinuity": "The old dog was very happy"
+   }
+  },
+  "gen_0048": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "her teddy",
+    "uncaused_action": "Cudy was so happy"
+   }
+  },
+  "gen_0049": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "his scooter",
+    "uncaused_action": "So the boy would tease him",
+    "character_discontinuity": "So the boy would tease him"
+   }
+  },
+  "gen_0050": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "opened the lock",
+    "uncaused_action": "ran back inside"
+   }
+  },
+  "gen_0051": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "He said goodbye to the dog",
+    "character_discontinuity": "The boy's Mom"
+   }
+  },
+  "gen_0052": {
+   "unexplained_object": false,
+   "uncaused_action": false,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {}
+  },
+  "gen_0053": {
+   "unexplained_object": true,
+   "uncaused_action": false,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "my cake"
+   }
+  },
+  "gen_0054": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "said goodbye"
+   }
+  },
+  "gen_0055": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "put the package on the shelf",
+    "uncaused_action": "the girl got very angry"
+   }
+  },
+  "gen_0056": {
+   "unexplained_object": true,
+   "uncaused_action": false,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "its special treat"
+   }
+  },
+  "gen_0057": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": true,
+   "evidence": {
+    "uncaused_action": "had to look for the key",
+    "character_discontinuity": "gave it to her friends",
+    "contradicted_ending": "the broken key"
+   }
+  },
+  "gen_0058": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "They both thanked the cat",
+    "character_discontinuity": "pointed out to its owner"
+   }
+  },
+  "gen_0059": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "was feeling very brave"
+   }
+  },
+  "gen_0060": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "Her friend was mad"
+   }
+  },
+  "gen_0061": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "the vroom",
+    "uncaused_action": "He thanked the robot"
+   }
+  },
+  "gen_0062": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "opened the hole",
+    "uncaused_action": "it was also very sad",
+    "character_discontinuity": "waited for the mouse to eat"
+   }
+  },
+  "gen_0063": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "like his ball",
+    "uncaused_action": "felt much better at the park",
+    "character_discontinuity": "Lily sat down"
+   }
+  },
+  "gen_0064": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "put it in the sink",
+    "uncaused_action": "She put it in the sink"
+   }
+  },
+  "gen_0065": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "barked nicely",
+    "character_discontinuity": "Look, Lily"
+   }
+  },
+  "gen_0066": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "wanted to stop smiling",
+    "character_discontinuity": "threw it back to Lily"
+   }
+  },
+  "gen_0067": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": true,
+   "evidence": {
+    "unexplained_object": "The white ball",
+    "uncaused_action": "Tom was sad",
+    "contradicted_ending": "said goodbye to the yellow ball"
+   }
+  },
+  "gen_0068": {
+   "unexplained_object": true,
+   "uncaused_action": false,
+   "character_discontinuity": true,
+   "contradicted_ending": true,
+   "evidence": {
+    "unexplained_object": "your bike golf",
+    "character_discontinuity": "Ben is the best girl",
+    "contradicted_ending": "Now Ben is the best girl"
+   }
+  },
+  "gen_0069": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "The cat had to go inside"
+   }
+  },
+  "gen_0070": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "the green ball",
+    "uncaused_action": "He was happy to have his new friend"
+   }
+  },
+  "gen_0071": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "find the map",
+    "uncaused_action": "he started to feel sad"
+   }
+  },
+  "gen_0072": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "in the hole",
+    "uncaused_action": "it felt like he was flying again",
+    "character_discontinuity": "the little boy was very happy"
+   }
+  },
+  "gen_0073": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "The girl took the cheese"
+   }
+  },
+  "gen_0074": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "to the table",
+    "uncaused_action": "The dog was sad"
+   }
+  },
+  "gen_0075": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "on the umbrella",
+    "uncaused_action": "they returned each lural"
+   }
+  },
+  "gen_0076": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "he was very glad to be in his new friend home"
+   }
+  },
+  "gen_0077": {
+   "unexplained_object": false,
+   "uncaused_action": false,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "character_discontinuity": "Lily and Ben played all day"
+   }
+  },
+  "gen_0078": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "her toys",
+    "uncaused_action": "her mom hugged her back",
+    "character_discontinuity": "Molly was careful"
+   }
+  },
+  "gen_0079": {
+   "unexplained_object": false,
+   "uncaused_action": true,
+   "character_discontinuity": false,
+   "contradicted_ending": false,
+   "evidence": {
+    "uncaused_action": "the pink cat came back"
+   }
+  },
+  "gen_0080": {
+   "unexplained_object": true,
+   "uncaused_action": true,
+   "character_discontinuity": true,
+   "contradicted_ending": false,
+   "evidence": {
+    "unexplained_object": "the wire",
+    "uncaused_action": "the robot started to feel sad",
+    "character_discontinuity": "the bird to its body"
+   }
+  }
+ }
+}
