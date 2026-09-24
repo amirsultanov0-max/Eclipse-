@@ -1,0 +1,12 @@
+# Model, tokenizer and inference. torch matches the version every Phase 2 run was
+# trained with (see any results/**/*.provenance.json).
+torch==2.14.0
+numpy>=2.0,<3
+
+# Web server
+fastapi==0.141.1
+uvicorn==0.53.0
+
+# Tests
+pytest==9.1.1
+httpx2==2.13.1
