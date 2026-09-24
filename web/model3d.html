@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eclipse in 3D</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/model3d.css">
+  <script type="importmap">
+    {"imports": {"three": "/static/vendor/three-0.185.0/three.module.min.js"}}
+  </script>
+</head>
+<body class="space">
+  <main class="wide3d">
+    <nav><a href="/">Eclipse</a> · <a href="/model">How Eclipse works</a></nav>
+    <header>
+      <h1>Eclipse in 3D</h1>
+      <p class="lede">
+        Two views of the loaded model, drawn from its real weights. Drag to rotate,
+        scroll or pinch to zoom, and hover over a point to read it.
+      </p>
+    </header>
+
+    <div class="tabs" role="tablist" aria-label="View">
+      <button role="tab" id="tab_embed" aria-selected="true" aria-controls="panel_embed">Embedding sphere</button>
+      <button role="tab" id="tab_attn" aria-selected="false" aria-controls="panel_attn">Attention sphere</button>
+    </div>
+
+    <p id="webgl_error" class="error" hidden>
+      This browser could not start WebGL, which the 3D views need.
+      The same data is on the <a href="/model">flat "How Eclipse works" page</a>.
+    </p>
+
+    <section id="panel_embed" role="tabpanel" aria-labelledby="tab_embed">
+      <p class="disclosure">
+        Each point is one token from Eclipse's vocabulary, placed by the trained token
+        embedding matrix: its position is the token's first three principal components.
+        <strong id="variance">Loading…</strong>
+        Each line joins a token to one of its <span id="k_label">3</span> most similar
+        tokens among those shown, measured by cosine similarity across all
+        <span id="dmodel_label">128</span> dimensions, not by distance in this picture.
+        Brighter lines mean higher similarity.
+      </p>
+      <div class="controls3d">
+        <div class="seg" role="radiogroup" aria-label="Layout">
+          <button type="button" role="radio" aria-checked="true" data-layout="sphere">Unit sphere</button>
+          <button type="button" role="radio" aria-checked="false" data-layout="raw">Raw PCA</button>
+        </div>
+        <label>Tokens
+          <select id="count">
+            <option value="100">100</option>
+            <option value="300" selected>300</option>
+            <option value="600">600</option>
+          </select>
+        </label>
+        <label>Neighbours per token
+          <select id="k">
+            <option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" id="rotate_embed" checked> Auto-rotate</label>
+      </div>
+      <div class="stage" id="stage_embed">
+        <div class="labels" aria-hidden="true"></div>
+        <aside class="info" id="embed_info" aria-live="polite">Hover over a point to see its token and its nearest neighbours.</aside>
+      </div>
+      <div class="legend3d">
+        <span>cosine similarity</span>
+        <span class="scale"><span class="bar" id="embed_legend"></span><span class="ticks"><span>0</span><span>1</span></span></span>
+      </div>
+      <p id="layout_note" class="caption"></p>
+      <p id="selection_note" class="caption"></p>
+    </section>
+
+    <section id="panel_attn" role="tabpanel" aria-labelledby="tab_attn" hidden>
+      <p class="disclosure genuine3d">
+        <strong>These are real attention weights</strong>, captured from a single forward
+        pass of the loaded model on your phrase. For every block the server checks that
+        they reproduce the model's own attention output exactly, and shows nothing if
+        they do not. They are the same data as the heatmaps on the
+        <a href="/model">flat page</a>.
+      </p>
+      <form id="attn_form" class="row3d" autocomplete="off">
+        <label for="attn_prompt" class="visually-hidden">Phrase, up to 30 tokens</label>
+        <input id="attn_prompt" type="text" maxlength="400" required
+               value="Lily found a shiny key under the bed. She">
+        <button type="submit" id="attn_submit">Show attention</button>
+      </form>
+      <p id="attn_error" class="error" role="alert" hidden></p>
+      <div class="controls3d">
+        <div role="radiogroup" aria-label="Block" id="block_picker" class="picker3d"></div>
+        <div role="radiogroup" aria-label="Head" id="head_picker" class="picker3d"></div>
+        <label>Hide weights below <output id="threshold_value">0.05</output>
+          <input id="threshold" type="range" min="0" max="0.5" step="0.01" value="0.05">
+        </label>
+        <label class="check"><input type="checkbox" id="rotate_attn"> Auto-rotate</label>
+      </div>
+      <div class="stage" id="stage_attn">
+        <div class="labels" aria-hidden="true"></div>
+        <aside class="info" id="attn_info" aria-live="polite">Hover over a token to see what it attends to.</aside>
+      </div>
+      <div class="legend3d">
+        <span>attention weight</span>
+        <span class="scale"><span class="bar" id="attn_legend"></span><span class="ticks"><span>0</span><span>1</span></span></span>
+      </div>
+      <p id="edge_count" class="caption"></p>
+      <p class="caption">
+        Tokens sit on a ring in reading order, clockwise from the top. Each line runs
+        from a token to an earlier token it attends to, and particles flow along it
+        from the earlier token into the later one, faster and brighter for larger
+        weights. A token cannot attend to later tokens, so there are no lines to the
+        future.
+      </p>
+    </section>
+  </main>
+  <script type="module" src="/static/model3d.js"></script>
+</body>
+</html>

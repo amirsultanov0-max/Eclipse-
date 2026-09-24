@@ -146,6 +146,36 @@ reproduce, bit for bit, the attention output the model itself produced in that p
 any block fails, the server returns an error instead of weights. The tests also check
 the weights bit for bit against the softmax output computed inside `forward()`.
 
+### Eclipse in 3D
+
+<http://127.0.0.1:8000/model-3d> has two rotatable 3D views. It is not linked from the
+other pages yet, so open it by its URL. Drag to rotate, scroll or pinch to zoom, and
+hover over (or tap) a point to read it.
+
+1. **Embedding sphere.** Each point is a token, placed by the first three principal
+   components of the trained 4,000 × 128 token embedding matrix, computed with a plain
+   numpy SVD. Three components keep only part of that matrix's variance, and the page
+   always shows how much. By default every point sits on a sphere at the direction of its
+   three components. That direction is real, but distance from the centre is not.
+   **Raw PCA** shows the actual coordinates instead. Lines join each token to its most
+   similar tokens among those shown. Similarity is cosine similarity across all 128
+   dimensions, not distance in the picture, and brighter lines are more similar.
+   Hovering a token shows its nearest neighbours in the whole 4,000-token vocabulary.
+   The page shows 300 tokens by default (100 on phones): the first ones the tokenizer
+   learned that are a space followed by at least three letters.
+2. **Attention sphere.** The same verified attention weights as the flat page, from
+   the same `/api/attention` endpoint, drawn as a ring of tokens. Each line runs from a
+   token to an earlier token it attends to, with brightness and particle speed set by the
+   weight. There are never lines to later tokens. A slider hides weights below a
+   threshold, and the page reports how many it hides.
+
+Every point, line and number comes from the loaded checkpoint. Colours, glow and motion
+are presentation only. The page uses [Three.js](https://threejs.org) 0.185.0 (MIT
+licence), vendored in `web/vendor/three-0.185.0/` and served locally like every other
+file, so the app still loads nothing from other hosts. The files are the ones in the
+npm release tarball, whose sha512 matched the registry's published integrity value, and
+the tests pin their SHA256 hashes.
+
 ### HTTP API
 
 `POST /api/generate`
@@ -180,6 +210,15 @@ the final LayerNorm.
 and returns the prompt's tokens and `attention[block][head][query][key]`, rounded to 6
 decimal places, with `"verified": true`. Invalid input gets HTTP 422. A failed
 verification gets HTTP 500 and no weights.
+
+`GET /api/embedding-projection?count=300&k=3` returns `count` tokens (10–800), each with
+its three PCA coordinates and its `k` (1–8) most cosine-similar tokens among those
+returned, as `[token_id, similarity]` pairs. It also returns the explained-variance
+ratio of the three components. The default response is about 37 KB.
+
+`GET /api/embedding-neighbors?token_id=242&k=10` returns one token's `k` (1–20) most
+cosine-similar tokens across the whole vocabulary. Out-of-range values get HTTP 422 on
+both endpoints.
 
 ## Generation settings
 
@@ -228,10 +267,15 @@ venv/bin/python -m pytest tests
   weights equal, bit for bit, the softmax output inside `forward()`. It checks that
   hooks are always removed and never change the model's output, that a failed
   verification returns no weights, and it covers the limits, the endpoints and the page.
+- `tests/test_embedding.py` covers the 3D page's data. It checks the PCA against an
+  eigendecomposition of the covariance, and every similarity against cosine similarity
+  computed separately from the `state_dict`, including brute-force top-k neighbours. It
+  also covers the token-selection rule, payload sizes, the endpoints and their limits,
+  the page, and the pinned SHA256 of each vendored Three.js file.
 
 The tests do not need the trained checkpoint. They write stand-in checkpoints with the
 real model class and the training script's own `save_checkpoint`, in the exact format the
-real checkpoint uses. Four tests run against the real checkpoint and are skipped, with
+real checkpoint uses. Five tests run against the real checkpoint and are skipped, with
 the reason printed, until `checkpoints/sr_data200mb_s1337_best.pt` is present.
 
 ## Limitations
@@ -258,8 +302,9 @@ the reason printed, until `checkpoints/sr_data200mb_s1337_best.pt` is present.
 
 | Path | Phase | Role |
 |---|---|---|
-| `eclipse/` | 3 | inference (checkpoint loading, checks, generation) and the architecture and attention views |
-| `server.py`, `web/` | 3 | web server, browser interface, and the "How Eclipse works" page |
+| `eclipse/` | 3 | inference (checkpoint loading, checks, generation), the architecture and attention views, and the embedding projection |
+| `server.py`, `web/` | 3 | web server, browser interface, the "How Eclipse works" page, and the 3D page |
+| `web/vendor/three-0.185.0/` | 3 | Three.js 0.185.0 (MIT), vendored for the 3D page |
 | `generate.py` | 3 | command-line generation |
 | `tests/` | 3 | tests for the Phase 3 program |
 | `model/transformer.py` | 1 | the Transformer (used unchanged by Phase 3) |

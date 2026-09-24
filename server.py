@@ -10,7 +10,10 @@ checkpoint is missing or does not check out, the server does not start.
 
     GET  /               the web interface (web/)
     GET  /model          how the model works: architecture and attention (web/model.html)
+    GET  /model-3d       3D views of the token embeddings and of attention (web/model3d.html)
     GET  /api/info       what is loaded: checkpoint, architecture, provenance, limits
+    GET  /api/embedding-projection?count=300&k=3   token embeddings: 3D PCA + nearest neighbors
+    GET  /api/embedding-neighbors?token_id=ID&k=10  one token's neighbors in the whole vocabulary
     GET  /api/architecture   the loaded model's structure and parameter counts
     POST /api/attention  {"prompt": "..."}: attention weights from one forward pass
     POST /api/generate   {"prompt": "...", "max_new_tokens": 150, "temperature": 1.0,
@@ -21,7 +24,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -29,6 +32,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from eclipse.attention import (MAX_ATTENTION_CHARS, AttentionCaptureError, capture_attention,
                                describe_architecture)
+from eclipse.embedding import (DEFAULT_COUNT, DEFAULT_K, DEFAULT_NEIGHBORS, MAX_COUNT, MAX_K,
+                               MAX_NEIGHBORS, MIN_COUNT, embedding_neighbors,
+                               embedding_projection)
 from eclipse.inference import (DEFAULT_MAX_NEW_TOKENS, DEFAULT_TEMPERATURE, DEFAULT_TOP_K,
                                MAX_NEW_TOKENS_LIMIT, MAX_PROMPT_CHARS, MAX_TEMPERATURE,
                                SEED_LIMIT, Eclipse, EclipseError, GenerationRequestError,
@@ -123,6 +129,19 @@ def create_app(engine: Eclipse) -> FastAPI:
     @app.get("/model", include_in_schema=False)
     def model_page():
         return FileResponse(WEB_DIR / "model.html")
+
+    @app.get("/api/embedding-projection")
+    def projection(count: int = Query(DEFAULT_COUNT, ge=MIN_COUNT, le=MAX_COUNT),
+                   k: int = Query(DEFAULT_K, ge=1, le=MAX_K)):
+        return embedding_projection(engine, count, k)
+
+    @app.get("/api/embedding-neighbors")
+    def neighbors(token_id: int = Query(), k: int = Query(DEFAULT_NEIGHBORS, ge=1, le=MAX_NEIGHBORS)):
+        return embedding_neighbors(engine, token_id, k)
+
+    @app.get("/model-3d", include_in_schema=False)
+    def model_3d_page():
+        return FileResponse(WEB_DIR / "model3d.html")
 
     app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
     return app

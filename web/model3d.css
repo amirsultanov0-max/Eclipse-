@@ -1,0 +1,159 @@
+/* The 3D page is always dark: these are style.css's own dark-theme values. */
+body.space {
+  --bg: #141416;
+  --surface: #1d1d21;
+  --text: #ececef;
+  --muted: #a0a0aa;
+  --border: #3a3a42;
+  --accent: #8f9ef5;
+  --accent-text: #0f1020;
+  --error-bg: #3a1c1c;
+  --error-text: #ffb4b4;
+  --stage: #0b0c10;
+  color-scheme: dark;
+}
+
+main.wide3d { max-width: 1100px; }
+
+nav { font-size: 0.92rem; margin-bottom: 16px; }
+nav a, .disclosure a, .caption a, .error a { color: var(--accent); }
+
+.tabs { display: flex; gap: 4px; margin: 8px 0 16px; border-bottom: 1px solid var(--border); }
+.tabs button {
+  font: inherit;
+  font-weight: 600;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+
+.caption { color: var(--muted); font-size: 0.85rem; margin: 8px 0 0; }
+
+.disclosure {
+  font-size: 0.92rem;
+  color: var(--muted);
+  margin: 0 0 12px;
+}
+.disclosure strong { color: var(--text); }
+.genuine3d { padding: 10px 14px; border-left: 3px solid var(--accent); background: var(--surface); }
+
+.controls3d {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  align-items: center;
+  margin: 0 0 12px;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+.controls3d label { display: flex; align-items: center; gap: 6px; font-weight: 500; margin: 0; }
+.controls3d select, .row3d input {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+.controls3d input[type="range"] { accent-color: var(--accent); width: 120px; }
+.controls3d input[type="checkbox"] { accent-color: var(--accent); }
+
+.seg, .picker3d { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.picker3d .picker-label { margin-right: 2px; }
+.seg button, .picker3d button {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+.seg button[aria-checked="true"], .picker3d button[aria-checked="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+.row3d { display: flex; gap: 8px; margin-bottom: 12px; }
+.row3d input { flex: 1; min-width: 0; padding: 8px 10px; }
+.row3d button {
+  font: inherit;
+  font-weight: 600;
+  background: var(--accent);
+  color: var(--accent-text);
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.row3d button:disabled { opacity: 0.6; cursor: progress; }
+
+.stage {
+  position: relative;
+  height: min(72vh, 640px);
+  min-height: 360px;
+  background: var(--stage);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  touch-action: none;
+}
+.stage canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+.stage canvas:active { cursor: grabbing; }
+
+.labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.label3d {
+  position: absolute;
+  transform: translate(-50%, -135%);
+  white-space: pre;
+  font-size: 12px;
+  line-height: 1.2;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(11, 12, 16, 0.78);
+  color: var(--text);
+  border: 1px solid rgba(143, 158, 245, 0.35);
+}
+.label3d.main { font-weight: 700; border-color: var(--accent); font-size: 13px; }
+.label3d.dim { color: var(--muted); border-color: transparent; background: rgba(11, 12, 16, 0.55); }
+.label3d .num { color: #9ec5f4; font-variant-numeric: tabular-nums; }
+
+.info {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: min(290px, calc(100% - 20px));
+  max-height: calc(100% - 20px);
+  overflow: auto;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(20, 20, 22, 0.86);
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--muted);
+  pointer-events: auto;
+}
+.info h3 { margin: 0 0 4px; font-size: 0.95rem; color: var(--text); white-space: pre; }
+.info table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.info td { padding: 1px 0; white-space: pre; }
+.info td.v { text-align: right; color: var(--text); }
+.info .sub { margin: 8px 0 2px; color: var(--text); font-weight: 600; }
+
+@media (max-width: 600px) {
+  .info { top: auto; bottom: 8px; right: 8px; max-height: 38%; }
+}
+
+.legend3d { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 0.8rem; color: var(--muted); }
+.legend3d .scale { display: flex; flex-direction: column; width: 160px; }
+.legend3d .bar { height: 10px; border-radius: 3px; }
+.legend3d .ticks { display: flex; justify-content: space-between; }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
