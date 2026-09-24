@@ -104,6 +104,14 @@ nav a, .disclosure a, .caption a, .error a { color: var(--accent); }
   overflow: hidden;
   touch-action: none;
 }
+/* No browser tap highlight (Chromium's default is a 40% blue fill over the whole element)
+   and no text-selection tint on the canvas or its floating labels. */
+.stage {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.stage .info { -webkit-user-select: text; user-select: text; }
 .stage canvas { display: block; width: 100%; height: 100%; cursor: grab; }
 .stage canvas:active { cursor: grabbing; }
 

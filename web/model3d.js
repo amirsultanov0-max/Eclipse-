@@ -196,12 +196,23 @@ function arcPoints(a, b, layout) {
   return out;
 }
 
+function disposeObject(obj) {
+  if (!obj) return;
+  obj.traverse((o) => {
+    if (o.geometry) o.geometry.dispose();
+    if (o.material) {
+      if (o.material.map) o.material.map.dispose();
+      o.material.dispose();
+    }
+  });
+  if (obj.parent) obj.parent.remove(obj);
+}
+
 function buildEmbedding() {
   const { view, data } = embed;
-  if (embed.points) view.scene.remove(embed.points);
-  if (embed.lines) view.scene.remove(embed.lines);
+  for (const obj of [embed.points, embed.lines, embed.highlight]) disposeObject(obj);
   embed.positions = layoutPositions(data, embed.layout);
-  const index = new Map(data.tokens.map((t, i) => [t.id, i]));
+  embed.index = new Map(data.tokens.map((t, i) => [t.id, i]));
 
   embed.points = pointsObject(embed.positions.flatMap((v) => v.toArray()), 0.95);
   view.scene.add(embed.points);
@@ -209,14 +220,24 @@ function buildEmbedding() {
   const seen = new Map();
   data.tokens.forEach((t, i) => {
     for (const [nid, sim] of t.neighbors) {
-      const j = index.get(nid);
+      const j = embed.index.get(nid);
       const key = i < j ? `${i}-${j}` : `${j}-${i}`;
       if (!seen.has(key)) seen.set(key, { a: Math.min(i, j), b: Math.max(i, j), sim });
     }
   });
   embed.edges = [...seen.values()];
-  embed.lines = new THREE.Group();
+
+  // The base sphere is drawn once per load and never changes on hover.
+  const positions = [];
+  const lineColors = [];
+  for (const e of embed.edges) {
+    const color = EDGE.clone().multiplyScalar(Math.max(0, Math.min(1, e.sim)));
+    pushSegmentPath(arcPoints(embed.positions[e.a], embed.positions[e.b], embed.layout),
+                    color, positions, lineColors);
+  }
+  embed.lines = lineObject(positions, lineColors, 0.4);
   view.scene.add(embed.lines);
+  embed.highlight = null;
   colourEmbedding();
   debug.embed = {
     layout: embed.layout,
@@ -225,36 +246,34 @@ function buildEmbedding() {
   };
 }
 
+function ownNeighbors(i) {
+  return embed.data.tokens[i].neighbors.map(([id, sim]) => ({ index: embed.index.get(id), sim }));
+}
+
+// Hover changes only the hovered point, its own k neighbours and the k lines to them.
 function colourEmbedding() {
   const { data, hovered } = embed;
-  const near = new Set();
-  if (hovered !== null) {
-    for (const e of embed.edges) {
-      if (e.a === hovered) near.add(e.b);
-      if (e.b === hovered) near.add(e.a);
-    }
-  }
+  const own = hovered === null ? [] : ownNeighbors(hovered);
+  const ownSet = new Set(own.map((n) => n.index));
   const colors = embed.points.geometry.getAttribute("color");
   data.tokens.forEach((_, i) => {
-    const c = i === hovered ? NODE_HOT : near.has(i) ? NODE_NEAR
-      : NODE.clone().multiplyScalar(hovered === null ? 1 : 0.45);
+    const c = i === hovered ? NODE_HOT : ownSet.has(i) ? NODE_NEAR : NODE;
     colors.setXYZ(i, c.r, c.g, c.b);
   });
   colors.needsUpdate = true;
 
+  disposeObject(embed.highlight);
+  embed.highlight = null;
+  if (hovered === null) return;
   const positions = [];
   const lineColors = [];
-  for (const e of embed.edges) {
-    const touches = hovered !== null && (e.a === hovered || e.b === hovered);
-    const strength = Math.max(0, Math.min(1, e.sim));
-    const base = touches ? EDGE_HOT : EDGE;
-    const dim = hovered === null || touches ? 1 : 0.3;
-    const color = base.clone().multiplyScalar(strength * dim);
-    pushSegmentPath(arcPoints(embed.positions[e.a], embed.positions[e.b], embed.layout),
+  for (const n of own) {
+    const color = NODE_NEAR.clone().multiplyScalar(0.35 + 0.65 * Math.max(0, Math.min(1, n.sim)));
+    pushSegmentPath(arcPoints(embed.positions[hovered], embed.positions[n.index], embed.layout),
                     color, positions, lineColors);
   }
-  embed.lines.clear();
-  embed.lines.add(lineObject(positions, lineColors, 0.4));
+  embed.highlight = lineObject(positions, lineColors, 1);
+  embed.view.scene.add(embed.highlight);
 }
 
 async function showEmbeddingInfo(i) {
@@ -304,11 +323,9 @@ function embedLabels() {
   }
   const items = [{ position: embed.positions[hovered], cls: "main",
                    parts: [{ text: shown(data.tokens[hovered].text) }] }];
-  for (const e of embed.edges) {
-    const other = e.a === hovered ? e.b : e.b === hovered ? e.a : null;
-    if (other === null) continue;
-    items.push({ position: embed.positions[other], cls: "dim",
-                 parts: [{ text: `${shown(data.tokens[other].text)} ` }, { text: fmtNum(e.sim), num: true }] });
+  for (const n of ownNeighbors(hovered)) {
+    items.push({ position: embed.positions[n.index], cls: "dim",
+                 parts: [{ text: `${shown(data.tokens[n.index].text)} ` }, { text: fmtNum(n.sim), num: true }] });
   }
   placeLabels(view, items);
 }
@@ -405,7 +422,7 @@ function attnCurve(from, to) {
 
 function buildAttention() {
   const { view, data, block, head, threshold } = attn;
-  for (const obj of [attn.points, attn.lines, attn.particles]) if (obj) view.scene.remove(obj);
+  for (const obj of [attn.points, attn.lines, attn.particles]) disposeObject(obj);
   const tokens = data.tokens;
   const weights = data.attention[block][head];
   attn.positions = ringPositions(tokens.length);
@@ -465,7 +482,7 @@ function colourAttention() {
     const color = (touches ? EDGE_HOT : EDGE).clone().multiplyScalar(f.weight * dim);
     pushSegmentPath(f.curve.getPoints(24), color, positions, lineColors);
   }
-  attn.lines.clear();
+  for (const child of [...attn.lines.children]) disposeObject(child);
   attn.lines.add(lineObject(positions, lineColors));
 }
 
