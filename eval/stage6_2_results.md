@@ -95,7 +95,7 @@ applied. The verdict concerns validation loss only.
 
 ## 6. Observations
 
-**Seed spread: the capacity arm is far noisier across seeds.** Sample SD 0.0369 against 0.0050 on the full file, a factor of 7.4; 0.0370 against 0.0050 on the clean subset, a factor of 7.4. The three capacity runs span 0.0732 nats, wider than the entire effect measured in Stage 6.1's data intervention (0.1182 nats). **VERIFIED** (computed from section 3).
+**Seed spread: the capacity arm is far noisier across seeds.** Sample SD 0.0369 against 0.0050 on the full file, a factor of 7.4; 0.0370 against 0.0050 on the clean subset, a factor of 7.4. The three capacity runs span 0.0732 nats, 62% of the effect measured in Stage 6.1's data intervention (0.1182 nats) — roughly two-thirds of it. **VERIFIED** (computed from section 3).
 
 Why a wider model varies more from seed to seed is not established here, and three seeds is
 a small sample from which to estimate an SD, so the ratio itself is imprecise. Treat it as a

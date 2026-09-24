@@ -284,9 +284,9 @@ def build():
     w("**Seed spread: the capacity arm is far noisier across seeds.** Sample SD "
       f"{cap_sd:.4f} against {ref_sd:.4f} on the full file, a factor of {cap_sd / ref_sd:.1f}; "
       f"{cap_sd_c:.4f} against {ref_sd_c:.4f} on the clean subset, a factor of "
-      f"{cap_sd_c / ref_sd_c:.1f}. The three capacity runs span {span:.4f} nats, wider than the "
-      "entire effect measured in Stage 6.1's data intervention (0.1182 nats). **VERIFIED** "
-      "(computed from section 3).")
+      f"{cap_sd_c / ref_sd_c:.1f}. The three capacity runs span {span:.4f} nats, "
+      f"{100 * span / 0.1182:.0f}% of the effect measured in Stage 6.1's data intervention "
+      "(0.1182 nats) — roughly two-thirds of it. **VERIFIED** (computed from section 3).")
     w("")
     w("Why a wider model varies more from seed to seed is not established here, and three seeds is")
     w("a small sample from which to estimate an SD, so the ratio itself is imprecise. Treat it as a")
