@@ -197,6 +197,29 @@ and eval-batch fingerprints, the final weights, and the step-1,000 generation te
 On MPS the deterministic quantities (initial weights, eval batches, the running batch-start hash
 over all 1,001 steps) are likewise bitwise equal. **VERIFIED**
 
+### Known defect in the frozen training code (recorded 2026-09-23, after the capacity runs)
+
+`train_transformer.py` writes a **hardcoded architecture line** into every run summary it
+produces: *"d_model 128, 4 heads, d_ff 512, 6 Pre-LN blocks, tied LM head — 1,767,424
+parameters"*, regardless of the `--d-model`, `--n-heads` and `--d-ff` values the run used. Every
+capacity-arm `.md` in `results/stage6_2/` therefore describes itself as the reference architecture.
+
+**What actually ran is not in doubt.** The manifests record `d_model 352, n_heads 4, d_ff 1408`,
+each checkpoint's config records exactly 10,537,472 parameters, and `scripts/run_stage6_2.sh`
+refused to commit any run whose parameter count differed. The defect is in the summary prose only:
+nothing trained, evaluated or analysed is affected, and no number in `eval/stage6_2_results.md`
+derives from that line. **VERIFIED**
+
+**Not fixed now.** The fix edits `train_transformer.py`, which this section freezes, and the
+capacity arm is already trained against the recorded hash `57d4e57e…`. Changing it now would
+invalidate that hash for no benefit to a completed experiment. It is therefore left for a
+**documented amendment under section 13, before Stage 6.3 trains anything** — at which point the
+line should be generated from the run's own arguments and parameter count, and the new hash
+recorded here as 6.3's provenance, leaving 6.2's hashes intact.
+
+Until that amendment lands, a Stage 6.2 run file read on its own is misleading about its
+architecture. `eval/stage6_2_results.md` carries a note to that effect at the top.
+
 ### Before any d352 training
 
 1. Verify the repository tree is clean.
@@ -410,3 +433,10 @@ not affect the schema above, which rests only on the v2 measurement.
 
 **Consequence.** No change to the primary metric, the verdict rule, the arms or the training
 protocol. Nothing about the capacity comparison in sections 6 and 7 depends on this section.
+
+### Pending for Stage 6.3 (not yet an amendment)
+
+The hardcoded architecture line in `train_transformer.py`'s run summary, recorded as a known defect
+in section 9, is to be fixed by a documented amendment **before** Stage 6.3 trains anything. The
+amendment must record what changed, why, the verification, and the new file hash alongside the
+Stage 6.2 hashes rather than replacing them.
