@@ -118,6 +118,34 @@ venv/bin/python generate.py --info        # what was loaded, as JSON
 The story is printed to stdout. The details (token count, stop reason and seed) go to
 stderr.
 
+### How Eclipse works
+
+<http://127.0.0.1:8000/model>, linked from the main page, has two parts:
+
+1. **Architecture.** A block diagram of the loaded model: token and position
+   embeddings, the stack of Transformer blocks (attention, then feed-forward, each with a
+   residual connection), the final LayerNorm, and the output head, which reuses the token
+   embedding matrix. Every dimension and parameter count comes from the loaded
+   checkpoint's weights.
+2. **Attention.** Type a short phrase (at most 30 tokens) and pick a block. For each of
+   that block's heads, a heatmap shows how much each token attends to each earlier token.
+   Rows are the tokens doing the looking and each row sums to 1. The upper triangle is
+   blank because a token cannot see later tokens. Hover over a cell for its exact
+   weight, or open the table view.
+
+The attention weights are real: they come from one ordinary forward pass of the loaded
+model on that exact phrase. `model/transformer.py` is frozen by the Stage 6.2
+preregistration, so it is not modified to expose them. Instead, `eclipse/attention.py`
+attaches PyTorch forward hooks to each block's Q, K and V projections and to the input
+of its output projection, and removes them afterwards. The model keeps its weights in a
+local variable that hooks cannot reach, so they are recomputed from the captured Q and K
+with the same operations `forward()` uses.
+
+Every request is verified before anything is returned: the weights multiplied by V must
+reproduce, bit for bit, the attention output the model itself produced in that pass. If
+any block fails, the server returns an error instead of weights. The tests also check
+the weights bit for bit against the softmax output computed inside `forward()`.
+
 ### HTTP API
 
 `POST /api/generate`
@@ -143,6 +171,15 @@ fields.
 `GET /api/info` returns the loaded checkpoint, its architecture and where each value came
 from, the training configuration, the tokenizer hash, the provenance result, the device,
 and the limits and defaults.
+
+`GET /api/architecture` returns the loaded model's dimensions and its parameter count per
+component: embeddings, each block's LayerNorms, attention and feed-forward layers, and
+the final LayerNorm.
+
+`POST /api/attention` takes `{"prompt": "..."}` (at most 30 tokens and 400 characters)
+and returns the prompt's tokens and `attention[block][head][query][key]`, rounded to 6
+decimal places, with `"verified": true`. Invalid input gets HTTP 422. A failed
+verification gets HTTP 500 and no weights.
 
 ## Generation settings
 
@@ -186,10 +223,15 @@ venv/bin/python -m pytest tests
   checks that no external model, LLM client or network client is referenced.
 - `tests/test_api.py` covers the HTTP API, the pages, invalid input, and startup with and
   without a checkpoint.
+- `tests/test_attention.py` covers the architecture and attention views. It checks
+  that `model/transformer.py` still has its preregistered hash, and that the hooked
+  weights equal, bit for bit, the softmax output inside `forward()`. It checks that
+  hooks are always removed and never change the model's output, that a failed
+  verification returns no weights, and it covers the limits, the endpoints and the page.
 
 The tests do not need the trained checkpoint. They write stand-in checkpoints with the
 real model class and the training script's own `save_checkpoint`, in the exact format the
-real checkpoint uses. Three tests run against the real checkpoint and are skipped, with
+real checkpoint uses. Four tests run against the real checkpoint and are skipped, with
 the reason printed, until `checkpoints/sr_data200mb_s1337_best.pt` is present.
 
 ## Limitations
@@ -216,8 +258,8 @@ the reason printed, until `checkpoints/sr_data200mb_s1337_best.pt` is present.
 
 | Path | Phase | Role |
 |---|---|---|
-| `eclipse/` | 3 | inference: checkpoint loading, checks, generation |
-| `server.py`, `web/` | 3 | web server and browser interface |
+| `eclipse/` | 3 | inference (checkpoint loading, checks, generation) and the architecture and attention views |
+| `server.py`, `web/` | 3 | web server, browser interface, and the "How Eclipse works" page |
 | `generate.py` | 3 | command-line generation |
 | `tests/` | 3 | tests for the Phase 3 program |
 | `model/transformer.py` | 1 | the Transformer (used unchanged by Phase 3) |

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Eclipse works</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/model.css">
+</head>
+<body>
+  <main class="wide">
+    <nav><a href="/">← Back to Eclipse</a></nav>
+    <header>
+      <h1>How Eclipse works</h1>
+      <p class="lede">
+        Eclipse turns text into tokens, passes them through a stack of Transformer
+        blocks, and outputs a probability for every token that could come next.
+        This page shows the structure of the model that is loaded right now, and
+        where it looks when it reads a phrase you type.
+      </p>
+    </header>
+
+    <section aria-labelledby="arch_heading">
+      <h2 id="arch_heading" class="section">1. Architecture</h2>
+      <p>
+        Every number below is read from the loaded checkpoint's weights, not typed
+        into this page. Parameter counts are the model's own.
+      </p>
+      <div id="diagram" class="diagram" role="img" aria-label="Architecture diagram, loading"></div>
+      <p id="arch_summary" class="caption"></p>
+    </section>
+
+    <section id="attention_section" aria-labelledby="attn_heading">
+      <h2 id="attn_heading" class="section">2. Attention</h2>
+      <p>
+        Inside each block, attention lets every token look back at the tokens
+        before it and decide how much of each to take in. Each head does this
+        independently. Type a short phrase to see the weights for that exact input.
+      </p>
+      <p class="genuine">
+        <strong>These are real attention weights</strong>, captured from a single
+        forward pass of the loaded model on your phrase. For every block the server
+        checks that these weights reproduce the model's own attention output exactly,
+        and shows nothing if they do not. They are not illustrative.
+      </p>
+
+      <form id="attn_form" autocomplete="off">
+        <label for="attn_prompt">Phrase (up to <span id="attn_limit">30</span> tokens)</label>
+        <div class="row">
+          <input id="attn_prompt" type="text" maxlength="400" required
+                 value="Lily found a shiny key under the bed. She">
+          <button type="submit" id="attn_submit">Show attention</button>
+        </div>
+        <div class="examples" aria-label="Example phrases">
+          <span>Try:</span>
+          <button type="button" class="example">Lily found a shiny key under the bed. She</button>
+          <button type="button" class="example">Tom and Sue went to the park. Tom gave Sue a</button>
+          <button type="button" class="example">Mom said, "It is time for bed." The little dog</button>
+        </div>
+      </form>
+
+      <p id="attn_error" class="error" role="alert" hidden></p>
+
+      <div id="attn_result" hidden>
+        <div class="pickers">
+          <div role="radiogroup" aria-label="Block" id="block_picker" class="picker"></div>
+          <div role="radiogroup" aria-label="Head" id="head_picker" class="picker"></div>
+        </div>
+
+        <div class="heat-layout">
+          <figure class="heat-main">
+            <figcaption id="heat_title"></figcaption>
+            <div id="heatmap"></div>
+          </figure>
+          <aside class="heat-side">
+            <div class="legend" aria-label="Colour scale">
+              <span class="legend-title">Attention weight</span>
+              <div id="legend_bar" class="legend-bar"></div>
+              <div class="legend-ticks"><span>0</span><span>0.5</span><span>1</span></div>
+              <div class="legend-blank"><span class="swatch-blank"></span> blank: a later token, which the model cannot see</div>
+            </div>
+            <div class="how-to-read">
+              <p><strong>How to read it.</strong> Each row is a token doing the looking. Each
+              column is a token it can look at. A row adds up to 1.</p>
+              <p>The first token can only see itself, so its weight is always 1.</p>
+            </div>
+            <div class="thumbs-label">All heads in this block</div>
+            <div id="thumbs" class="thumbs"></div>
+          </aside>
+        </div>
+
+        <p id="verification" class="caption"></p>
+
+        <details class="table-view">
+          <summary>Table view of this head</summary>
+          <div class="table-scroll"><table id="attn_table"></table></div>
+        </details>
+      </div>
+    </section>
+  </main>
+  <div id="tooltip" class="tooltip" role="status" hidden></div>
+  <script src="/static/model.js"></script>
+</body>
+</html>

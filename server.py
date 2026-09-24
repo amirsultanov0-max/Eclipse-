@@ -9,7 +9,10 @@ checkpoint is missing or does not check out, the server does not start.
     venv/bin/python server.py --checkpoint PATH --port 8080
 
     GET  /               the web interface (web/)
+    GET  /model          how the model works: architecture and attention (web/model.html)
     GET  /api/info       what is loaded: checkpoint, architecture, provenance, limits
+    GET  /api/architecture   the loaded model's structure and parameter counts
+    POST /api/attention  {"prompt": "..."}: attention weights from one forward pass
     POST /api/generate   {"prompt": "...", "max_new_tokens": 150, "temperature": 1.0,
                           "top_k": 40, "seed": null}
 """
@@ -24,6 +27,8 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 
+from eclipse.attention import (MAX_ATTENTION_CHARS, AttentionCaptureError, capture_attention,
+                               describe_architecture)
 from eclipse.inference import (DEFAULT_MAX_NEW_TOKENS, DEFAULT_TEMPERATURE, DEFAULT_TOP_K,
                                MAX_NEW_TOKENS_LIMIT, MAX_PROMPT_CHARS, MAX_TEMPERATURE,
                                SEED_LIMIT, Eclipse, EclipseError, GenerationRequestError,
@@ -41,6 +46,12 @@ class GenerateRequest(BaseModel):
                                allow_inf_nan=False)
     top_k: int | None = Field(DEFAULT_TOP_K, ge=1)
     seed: int | None = Field(None, ge=0, lt=SEED_LIMIT)
+
+
+class AttentionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    prompt: str = Field(min_length=1, max_length=MAX_ATTENTION_CHARS)
 
 
 class GenerateResponse(BaseModel):
@@ -93,9 +104,25 @@ def create_app(engine: Eclipse) -> FastAPI:
             seed=result.seed, settings=result.to_dict()["settings"],
             elapsed_ms=round(result.elapsed_seconds * 1000, 1))
 
+    @app.exception_handler(AttentionCaptureError)
+    async def unverified_attention(request: Request, exc: AttentionCaptureError):
+        return _error(500, str(exc))
+
+    @app.get("/api/architecture")
+    def architecture():
+        return describe_architecture(engine)
+
+    @app.post("/api/attention")
+    def attention(body: AttentionRequest):
+        return capture_attention(engine, body.prompt)
+
     @app.get("/", include_in_schema=False)
     def index():
         return FileResponse(WEB_DIR / "index.html")
+
+    @app.get("/model", include_in_schema=False)
+    def model_page():
+        return FileResponse(WEB_DIR / "model.html")
 
     app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
     return app
