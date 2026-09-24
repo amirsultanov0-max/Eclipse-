@@ -20,6 +20,12 @@ Every run writes a provenance manifest next to its results file (git commit and
 dirty flag, all arguments, seeds, SHA256 of the data streams, and fingerprints of
 the initial weights, eval batches and every step's batch positions).
 
+Learning-rate schedule (--lr-schedule):
+  - constant        the default and every run before Stage 6.3: --lr throughout
+  - warmup_cosine   the Stage 6.3 treatment (eval/stage6_3_preregistration.md 2.1):
+                    linear warm-up to --lr over steps 1-1,000, then cosine decay to
+                    1e-4 at step 10,000; a shorter run follows the same schedule
+
     venv/bin/python train_transformer.py --run-name NAME --results-file results/NAME.md
 """
 
@@ -66,6 +72,12 @@ CHECKPOINT_EVERY = 1_000
 GENERATE_EVERY = 1_000        # only once the model is clearly learning
 PROMPT = "Once there was a little girl"
 SPIKE_RATIO = 10.0            # a norm this many times the median counts as a spike
+
+LR_SCHEDULES = ("constant", "warmup_cosine")
+# The Stage 6.3 treatment schedule, fixed by eval/stage6_3_preregistration.md section 2.1.
+WARMUP_STEPS = 1_000
+DECAY_END_STEP = 10_000
+FINAL_LR = 1e-4
 
 # Stage 3 reference points, for the architectural comparison in the summary.
 UNIFORM_LOSS = math.log(VOCAB_SIZE)        # 8.2940
@@ -190,6 +202,28 @@ def describe_param_groups(rows, weight_decay=WEIGHT_DECAY, show_all=False):
     print(f"  total {decayed + undecayed:,} parameters "
           f"({100 * decayed / (decayed + undecayed):.1f}% decayed)")
     return decayed, undecayed
+
+
+def warmup_cosine_lr(step, peak):
+    """
+    The learning rate for the update of `step` (1-based) under the Stage 6.3 schedule.
+
+    Written in the order of operations of eval/stage6_3_preregistration.md section 2.1,
+    so an independent evaluation of that formula reproduces it bit for bit.
+    """
+    if step <= WARMUP_STEPS:
+        return peak * step / WARMUP_STEPS
+    return FINAL_LR + 0.5 * (peak - FINAL_LR) * (
+        1 + math.cos(math.pi * (step - WARMUP_STEPS) / (DECAY_END_STEP - WARMUP_STEPS)))
+
+
+def lr_schedule_config(args):
+    """What the run's config and manifest record about its learning-rate schedule."""
+    if args.lr_schedule == "constant":
+        return {"name": "constant", "lr": args.lr}
+    return {"name": "warmup_cosine", "peak_lr": args.lr, "warmup_steps": WARMUP_STEPS,
+            "decay_end_step": DECAY_END_STEP, "final_lr": FINAL_LR,
+            "defined_in": "eval/stage6_3_preregistration.md section 2.1"}
 
 
 def train_step(model, optimizer, x, y, grad_clip=GRAD_CLIP):
@@ -331,7 +365,18 @@ def main():
                         help=f"attention heads (default {NUM_HEADS})")
     parser.add_argument("--d-ff", type=int, default=D_FF,
                         help=f"feed-forward width (default {D_FF})")
+    # LR schedule. The default is the constant rate every earlier run used; under it
+    # no learning rate is ever written after the optimizer is built.
+    parser.add_argument("--lr-schedule", choices=LR_SCHEDULES, default="constant",
+                        help="constant (default) or warmup_cosine (Stage 6.3 treatment)")
     args = parser.parse_args()
+    scheduled = args.lr_schedule == "warmup_cosine"
+    if scheduled and args.resume:
+        raise SystemExit("--lr-schedule warmup_cosine cannot be combined with --resume: "
+                         "treatment runs are single passes from step 1")
+    if scheduled and args.steps > DECAY_END_STEP:
+        raise SystemExit(f"--lr-schedule warmup_cosine is defined for steps 1-{DECAY_END_STEP:,} "
+                         f"only; got --steps {args.steps:,}")
 
     # --- output paths and provenance: pure I/O, no random draws -------------
     # Everything is checked before training starts, so a clash fails in seconds
@@ -345,7 +390,10 @@ def main():
     results_path = PROJECT_ROOT / args.results_file         # absolute paths pass through
     manifest_path = results_path.with_name(results_path.stem + ".provenance.json")
     diff_path = results_path.with_name(results_path.stem + ".provenance.diff")
-    for path in (log_path, grad_path, samples_path, results_path, manifest_path, diff_path):
+    # Per-step learning rates go in their own file, so the per-step log keeps its format.
+    lr_path = grad_path.with_name(grad_path.stem + "_lr.csv")
+    for path in (log_path, grad_path, samples_path, results_path, manifest_path, diff_path) + (
+            (lr_path,) if scheduled else ()):
         if path.exists():
             raise SystemExit(f"refusing to overwrite {path}")
     for directory in {checkpoints_dir, log_path.parent, grad_path.parent,
@@ -372,6 +420,7 @@ def main():
                    if args.resume else None),
         "environment": {"python": platform.python_version(), "torch": torch.__version__,
                         "numpy": np.__version__},
+        "lr_schedule": lr_schedule_config(args),
     }
 
     # --- randomness ---------------------------------------------------------
@@ -445,10 +494,12 @@ def main():
     config = {"steps": total_steps, "new_steps": args.steps, "resumed_from": args.resume,
               "train_tokens": display_path(train_path),
               "batch_size": args.batch_size, "lr": args.lr,
+              "lr_schedule": lr_schedule_config(args),
               "weight_decay": WEIGHT_DECAY, "grad_clip": GRAD_CLIP, "seed": args.seed,
               "eval_seed": EVAL_SEED, "generation_seed": args.seed + GENERATION_SEED_OFFSET,
               "context_length": CONTEXT_LENGTH, "vocab_size": VOCAB_SIZE,
               "d_model": args.d_model, "n_heads": args.n_heads, "d_ff": args.d_ff,
+              "num_blocks": len(model.blocks),
               "parameters": model.num_parameters(),
               "args": vars(args),
               "provenance": {"git": provenance["git"], "data": provenance["data"],
@@ -459,7 +510,8 @@ def main():
     print(f"train {len(train_stream):,} tokens | val {len(val_stream):,} tokens "
           f"({EVAL_BATCHES} fixed eval batches)")
     print(f"steps {start_step + 1:,}-{total_steps:,} ({args.steps:,} new) | "
-          f"batch {args.batch_size} | lr {args.lr} | clip {GRAD_CLIP} "
+          f"batch {args.batch_size} | lr {args.lr}"
+          f"{' (warmup_cosine)' if scheduled else ''} | clip {GRAD_CLIP} "
           f"| {tokens_per_step:,} tokens/step")
     print(f"one epoch = {len(train_stream):,} tokens; by step {total_steps:,} the model will "
           f"have seen {total_steps * tokens_per_step:,} "
@@ -474,12 +526,19 @@ def main():
     running_batch_hash = hashlib.sha256()      # over the concatenated per-step hashes
     best_val = resumed_best
     samples, generation_draws = [], {}
+    step_lrs = []
     start = time.time()
 
     for step in range(start_step + 1, total_steps + 1):
         x, y, starts = get_batch(train_stream, args.batch_size, return_starts=True)
         batch_hash = hashlib.sha256(starts.cpu().numpy().tobytes()).hexdigest()
         running_batch_hash.update(bytes.fromhex(batch_hash))
+        if scheduled:
+            # Plain arithmetic, no random draws: the batch stream is unaffected.
+            lr = warmup_cosine_lr(step, args.lr)
+            for group in optimizer.param_groups:
+                group["lr"] = lr
+            step_lrs.append((step, lr))
         loss, grad_norm = train_step(model, optimizer, x, y, GRAD_CLIP)
         interval_losses.append(loss)
         all_losses.append(loss)
@@ -535,6 +594,12 @@ def main():
                           in enumerate(zip(all_losses, all_norms, batch_hashes))])
     samples_path.write_text(
         "\n\n".join(f"=== step {s} ===\n{t}" for s, t in samples), encoding="utf-8")
+    if scheduled:
+        with lr_path.open("w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow(["step", "lr"])
+            writer.writerows([[s, repr(lr)] for s, lr in step_lrs])
+        provenance["fingerprints"]["per_step_lr_log"] = display_path(lr_path)
 
     provenance["status"] = "completed"
     provenance["fingerprints"].update({
@@ -580,16 +645,23 @@ def write_summary(args, config, wall_clock, curve, final_train, final_val, best_
                   if spikes else
                   f"No step exceeded {SPIKE_RATIO}x the median, so nothing resembling the "
                   f"lr=3e-3 spike pattern (38.4x at step 12) appeared.")
+    # Both lines come from the run's own settings. At default arguments they read exactly
+    # as the text this file used to hardcode (the known defect in the 6.2 preregistration).
+    schedule = config["lr_schedule"]
+    lr_text = (f"lr {args.lr}" if schedule["name"] == "constant" else
+               f"lr {args.lr} peak (linear warm-up over steps 1-{schedule['warmup_steps']:,}, "
+               f"then cosine decay to {schedule['final_lr']} at step {schedule['decay_end_step']:,})")
 
     lines = [
         f"# {title}",
         "",
         f"## {args.run_name} — {datetime.now():%Y-%m-%d %H:%M}",
         "",
-        f"- model: {config['context_length']}-token context, d_model 128, 4 heads, d_ff 512, "
-        f"6 Pre-LN blocks, tied LM head — 1,767,424 parameters",
+        f"- model: {config['context_length']}-token context, d_model {config['d_model']}, "
+        f"{config['n_heads']} heads, d_ff {config['d_ff']}, {config['num_blocks']} Pre-LN blocks, "
+        f"tied LM head — {config['parameters']:,} parameters",
         f"- config: {config['new_steps']:,} steps this run (through step "
-        f"{total_steps:,}){resumed}, batch {args.batch_size}, lr {args.lr}, AdamW "
+        f"{total_steps:,}){resumed}, batch {args.batch_size}, {lr_text}, AdamW "
         f"(weight decay {config['weight_decay']} on projection/FFN weights only), "
         f"grad clip {config['grad_clip']}, seed {config['seed']}, device `{device.type}`",
         f"- data: `{config['train_tokens']}` — {train_tokens:,} train tokens; validation is the "
