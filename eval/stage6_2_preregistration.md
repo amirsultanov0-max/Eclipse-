@@ -232,6 +232,23 @@ architecture. `eval/stage6_2_results.md` carries a note to that effect at the to
 8. **If `train_transformer.py` or `model/transformer.py` has changed, STOP.** Do not train d352.
    Report that the reference arm must be rerun before the comparison can proceed.
 
+### Stage 6.3 provenance (appended 2026-09-25, append-only)
+
+As the known-defect note above requires, the amended training script is recorded here as Stage
+6.3's provenance. Nothing above this note is changed. The reference arm's `c4db503` hashes and the
+capacity arm's `57d4e57e…` stand as recorded, and the Stage 6.2 run summaries already committed
+are not rewritten.
+
+| item | sha256 |
+|---|---|
+| `train_transformer.py` after Stage 6.3 Amendment 1 (commit `dfe08f1`) | `0acec486c1c6e197e63b72d32928dc8ca37740f30db4552f4612eb1f8f8ed762` |
+
+The amendment adds `--lr-schedule` (default `constant`). It also generates the run summary's
+architecture and learning-rate lines from the run's own settings, which fixes the known defect
+above for runs from Stage 6.3 on. At default arguments it reproduces `57d4e57e…` bitwise
+(`results/equivalence_6_3/`, commit `b3d67f6`). The full record is Amendment 1 in section 13
+of `eval/stage6_3_preregistration.md`.
+
 ## 10. OPEN ITEM — the capacity arm cannot be launched under the current code
 
 **Registered resolution: option 1 below. Decided and IMPLEMENTED 2026-09-22; equivalence verified.**

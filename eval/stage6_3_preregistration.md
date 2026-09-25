@@ -206,7 +206,7 @@ re-deriving them.
 |---|---|
 | `train_transformer.py`, baseline arm (at `0d55208`, `c970064`, `f0d5dbe`) | `817e03ecb9bac9491c904c3ae5311540b55fc6b35dfd777f4f5b916fc3b91c76` |
 | `train_transformer.py` at drafting (Stage 6.2 capacity-arm code) | `57d4e57eb7d6e6bff6c8042e2842109b0cd2f72949ef0b3ee21548842fe393a5` |
-| `train_transformer.py` after Amendment 1, treatment arm | **to be recorded by Amendment 1** |
+| `train_transformer.py` after Amendment 1, treatment arm (commit `dfe08f1`; recorded 2026-09-25) | `0acec486c1c6e197e63b72d32928dc8ca37740f30db4552f4612eb1f8f8ed762` |
 | `model/transformer.py` (both arms; unchanged since Stage 4) | `63ad52cdf138092233f9752dd7393f7af4790ff5276f4886294d0afbe93ca8f0` |
 | `eval_official_valid.py` (treatment arm's evaluations) | `ccc7bb9bd0b98aa2d2349e58329188db17d11e3a47686d77ad9c58edd187310a` |
 | `data/stage6_1_train_tokens.npy` (200 MB training stream) | `5c25b49be87093ce19f5b7a1d2b67ce2783d062c1a3c3c20c5ce7341ba47d4eb` |
@@ -223,6 +223,10 @@ all three baseline manifests, which agree.
 `57d4e57e…` (section 10). Together these link the reused baseline runs to the code the treatment arm
 runs under, and justify reusing them without an unchanged file hash.
 
+**Amendment 1's link is verified (added 2026-09-25).** At default arguments `0acec486…` reproduces
+`57d4e57e…` bitwise: `results/equivalence_6_3/` (commit `b3d67f6`), recorded in section 13.
+The chain `817e03ec…` ≡ `57d4e57e…` ≡ `0acec486…` is complete. **VERIFIED**
+
 ### Before any treatment-arm training
 
 1. Verify the repository tree is clean.
@@ -236,6 +240,11 @@ runs under, and justify reusing them without an unchanged file hash.
 8. **If any hash differs, or Amendment 1's verification has not passed, STOP.** Do not train.
 
 ## 10. OPEN ITEM — Amendment 1 is required before any treatment-arm training
+
+**RESOLVED 2026-09-25. Amendment 1 implemented (commit `dfe08f1`) and verified: all 30 checks of
+V1–V5 passed on the training machine (`results/equivalence_6_3/`, commit `b3d67f6`).**
+Section 9 carries the new hash; section 13 records the amendment. The plan below is kept as
+registered.
 
 `train_transformer.py` cannot run the treatment schedule, and it carries a known defect that the
 record says must be fixed before Stage 6.3 trains anything (`eval/stage6_2_preregistration.md`
@@ -320,5 +329,63 @@ length and batch size.
 Any modification to the locked design requires explicit documentation **before** training, recording
 what changed and why. No change may be made silently after observing results.
 
-*No amendments yet. Amendment 1 (section 10) is to be recorded here before any treatment-arm
-training.*
+### Amendment 1 — 2026-09-25, before any treatment-arm training
+
+**What changed.** `train_transformer.py`, `57d4e57e…` → `0acec486…` (commit `dfe08f1`):
+
+- `--lr-schedule {constant, warmup_cosine}`, default `constant`. Under `constant` no learning rate
+  is written after the optimizer is built. `warmup_cosine` implements section 2.1 with the
+  registered values fixed in code (warm-up to step 1,000, decay to 1e-4 at step 10,000), so a
+  shorter run follows the first steps of the registered schedule. It refuses `--resume` and
+  `--steps` above 10,000.
+- The run summary's architecture and learning-rate lines are generated from the run's own
+  settings, which fixes the known defect recorded in `eval/stage6_2_preregistration.md` section 9.
+  At default arguments they read exactly as the previously hardcoded text.
+- The run config and manifest record the schedule, and the config records the block count. Under
+  `warmup_cosine` every step's learning rate is written to `<per-step log>_lr.csv`. The per-step
+  log's format is unchanged.
+- No random-number-consuming call was added, removed or reordered. `model/transformer.py` and
+  `eval_official_valid.py` were not modified.
+
+The same commit adds `scripts/equivalence_6_3.py`, which runs V1–V5.
+
+**Why.** Section 10: the treatment schedule cannot run under the previous code. The record also
+requires the summary-line fix before Stage 6.3 trains anything.
+
+**Verification.** `scripts/equivalence_6_3.py`, run on the training machine on 2026-09-25 at HEAD
+`dfe08f1`. The pre-change code was `b0fd350` (`57d4e57e…`), checked out into a temporary git
+worktree. It ran 1,001 steps, seed 1337, on the 200 MB stream, and **all 30 checks passed**
+(`results/equivalence_6_3/REPORT.md`, commit `b3d67f6`):
+
+- V1 (CPU, default arguments, pre vs post) was bitwise equal on:
+  - per-step loss, gradient norm and batch starts at every step, and the whole per-step log;
+  - the initial-weight, eval-batch, final-weight and running batch-start fingerprints;
+  - the step-1,000 sample text and draw count.
+
+  One check beyond section 10's list confirmed that both runs' manifests record identical data
+  SHA256s.
+- V2: the run summaries are identical apart from run name, date, log names and wall-clock time.
+  The architecture and learning-rate lines are unchanged.
+- V3 (MPS): the initial-weight, eval-batch and running batch-start fingerprints and the per-step
+  batch starts are bitwise equal.
+- V4: `warmup_cosine` leaves the batch sequence and the initial-weight and eval-batch fingerprints
+  bitwise equal to the constant run. The step-1 loss and gradient norm are equal, and the
+  per-step learning rate equals section 2.1 at all 1,001 steps.
+- V5: the summary lines state the schedule of a `warmup_cosine` run and the architecture of a
+  d352 run (10,537,472 parameters). `warmup_cosine` with `--resume` or with `--steps 10001` is
+  refused before anything runs.
+
+Before this run, a sandbox smoke test of the harness on synthetic data (not evidence) found one
+harness defect, fixed before `dfe08f1` was committed. The pre-change worktree reached the data
+through a symlink. The training script resolves symlinks when it writes the data path into the
+summary, so V2 differed spuriously. The harness now hard-links the data files instead.
+
+**Consequence.** The baseline arm is NOT rerun. The chain `817e03ec…` ≡ `57d4e57e…` (Stage 6.2
+Amendment 1) ≡ `0acec486…` (this amendment) at default arguments links it to the treatment arm's
+code. The treatment arm trains under `0acec486…`, and `scripts/run_stage6_3.sh` checks that hash
+before every run.
+
+**Hash recording.** `0acec486…` is added to section 9's table without replacing `817e03ec…` or
+`57d4e57e…`. As that document requires, it is also appended to
+`eval/stage6_2_preregistration.md` section 9 as Stage 6.3's provenance, with explicit approval for
+that append-only note.
