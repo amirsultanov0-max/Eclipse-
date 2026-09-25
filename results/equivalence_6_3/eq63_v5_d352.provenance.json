@@ -1,0 +1,96 @@
+{
+ "created_at": "2026-09-25T12:35:55",
+ "status": "completed",
+ "git": {
+  "commit": "dfe08f1badaee5bda35b05c4cad1ea6d6d775da0",
+  "dirty": false,
+  "untracked": [],
+  "diff_file": null
+ },
+ "argv": [
+  "train_transformer.py",
+  "--steps",
+  "20",
+  "--seed",
+  "1337",
+  "--device",
+  "cpu",
+  "--train-tokens",
+  "data/stage6_1_train_tokens.npy",
+  "--run-name",
+  "eq63_20260925120839_v5_d352",
+  "--log-name",
+  "eq63_20260925120839_v5_d352_training.csv",
+  "--grad-name",
+  "eq63_20260925120839_v5_d352_grad.csv",
+  "--samples-name",
+  "eq63_20260925120839_v5_d352_samples.txt",
+  "--checkpoint-dir",
+  "/var/folders/yb/59gfz0j11cgbkk2kltqm9gyr0000gn/T/eq63_eawt6qpp/ckpt_v5_d352",
+  "--results-file",
+  "/var/folders/yb/59gfz0j11cgbkk2kltqm9gyr0000gn/T/eq63_eawt6qpp/v5_d352.md",
+  "--results-title",
+  "Stage 6.3 equivalence run",
+  "--d-model",
+  "352",
+  "--n-heads",
+  "4",
+  "--d-ff",
+  "1408"
+ ],
+ "args": {
+  "steps": 20,
+  "batch_size": 16,
+  "lr": 0.001,
+  "device": "cpu",
+  "run_name": "eq63_20260925120839_v5_d352",
+  "resume": null,
+  "train_tokens": "data/stage6_1_train_tokens.npy",
+  "log_name": "eq63_20260925120839_v5_d352_training.csv",
+  "grad_name": "eq63_20260925120839_v5_d352_grad.csv",
+  "samples_name": "eq63_20260925120839_v5_d352_samples.txt",
+  "results_file": "/var/folders/yb/59gfz0j11cgbkk2kltqm9gyr0000gn/T/eq63_eawt6qpp/v5_d352.md",
+  "results_title": "Stage 6.3 equivalence run",
+  "seed": 1337,
+  "checkpoint_dir": "/var/folders/yb/59gfz0j11cgbkk2kltqm9gyr0000gn/T/eq63_eawt6qpp/ckpt_v5_d352",
+  "d_model": 352,
+  "n_heads": 4,
+  "d_ff": 1408,
+  "lr_schedule": "constant"
+ },
+ "seeds": {
+  "seed": 1337,
+  "eval_seed": 1337,
+  "generation_seed": 11337,
+  "generation_rng": "dedicated torch.Generator (decoupled from batches)"
+ },
+ "data": {
+  "train_tokens": {
+   "path": "data/stage6_1_train_tokens.npy",
+   "sha256": "5c25b49be87093ce19f5b7a1d2b67ce2783d062c1a3c3c20c5ce7341ba47d4eb"
+  },
+  "val_tokens": {
+   "path": "data/stage3_val_tokens.npy",
+   "sha256": "9343c0f71f96cc033c4a5ba163af099ea8a33db0d4327af73b3dfae00c52eb9e"
+  }
+ },
+ "resume": null,
+ "environment": {
+  "python": "3.14.7",
+  "torch": "2.14.0",
+  "numpy": "2.5.3"
+ },
+ "lr_schedule": {
+  "name": "constant",
+  "lr": 0.001
+ },
+ "fingerprints": {
+  "initial_weights_sha256": "3a5cee38337e2efde0c59caad684398bbef66c32ed0b65478e5f9e047be77511",
+  "eval_batches_sha256": "0b16430f6461735cbd55eb564ec5d5a0426446290c3a5399fd97c00fad63fc8c",
+  "batch_starts_running_sha256": "b2a1ed3b735d4e65624eccc608cbd14a652ccd108666c3a5b8e3de0f6e455638",
+  "per_step_log": "logs/eq63_20260925120839_v5_d352_grad.csv",
+  "generation_draws": {},
+  "final_step": 20,
+  "final_weights_sha256": "bd633cdd44cb65d94e0bb3dbeee5f876a4b01f04ba5f545d651cb1ebc46e27da"
+ }
+}

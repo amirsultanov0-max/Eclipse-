@@ -1,0 +1,97 @@
+{
+ "created_at": "2026-09-25T12:35:38",
+ "status": "completed",
+ "git": {
+  "commit": "dfe08f1badaee5bda35b05c4cad1ea6d6d775da0",
+  "dirty": false,
+  "untracked": [],
+  "diff_file": null
+ },
+ "argv": [
+  "train_transformer.py",
+  "--steps",
+  "20",
+  "--seed",
+  "1337",
+  "--device",
+  "cpu",
+  "--train-tokens",
+  "data/stage6_1_train_tokens.npy",
+  "--run-name",
+  "eq63_20260925120839_v5_cosine",
+  "--log-name",
+  "eq63_20260925120839_v5_cosine_training.csv",
+  "--grad-name",
+  "eq63_20260925120839_v5_cosine_grad.csv",
+  "--samples-name",
+  "eq63_20260925120839_v5_cosine_samples.txt",
+  "--checkpoint-dir",
+  "/var/folders/yb/59gfz0j11cgbkk2kltqm9gyr0000gn/T/eq63_eawt6qpp/ckpt_v5_cosine",
+  "--results-file",
+  "/var/folders/yb/59gfz0j11cgbkk2kltqm9gyr0000gn/T/eq63_eawt6qpp/v5_cosine.md",
+  "--results-title",
+  "Stage 6.3 equivalence run",
+  "--lr-schedule",
+  "warmup_cosine"
+ ],
+ "args": {
+  "steps": 20,
+  "batch_size": 16,
+  "lr": 0.001,
+  "device": "cpu",
+  "run_name": "eq63_20260925120839_v5_cosine",
+  "resume": null,
+  "train_tokens": "data/stage6_1_train_tokens.npy",
+  "log_name": "eq63_20260925120839_v5_cosine_training.csv",
+  "grad_name": "eq63_20260925120839_v5_cosine_grad.csv",
+  "samples_name": "eq63_20260925120839_v5_cosine_samples.txt",
+  "results_file": "/var/folders/yb/59gfz0j11cgbkk2kltqm9gyr0000gn/T/eq63_eawt6qpp/v5_cosine.md",
+  "results_title": "Stage 6.3 equivalence run",
+  "seed": 1337,
+  "checkpoint_dir": "/var/folders/yb/59gfz0j11cgbkk2kltqm9gyr0000gn/T/eq63_eawt6qpp/ckpt_v5_cosine",
+  "d_model": 128,
+  "n_heads": 4,
+  "d_ff": 512,
+  "lr_schedule": "warmup_cosine"
+ },
+ "seeds": {
+  "seed": 1337,
+  "eval_seed": 1337,
+  "generation_seed": 11337,
+  "generation_rng": "dedicated torch.Generator (decoupled from batches)"
+ },
+ "data": {
+  "train_tokens": {
+   "path": "data/stage6_1_train_tokens.npy",
+   "sha256": "5c25b49be87093ce19f5b7a1d2b67ce2783d062c1a3c3c20c5ce7341ba47d4eb"
+  },
+  "val_tokens": {
+   "path": "data/stage3_val_tokens.npy",
+   "sha256": "9343c0f71f96cc033c4a5ba163af099ea8a33db0d4327af73b3dfae00c52eb9e"
+  }
+ },
+ "resume": null,
+ "environment": {
+  "python": "3.14.7",
+  "torch": "2.14.0",
+  "numpy": "2.5.3"
+ },
+ "lr_schedule": {
+  "name": "warmup_cosine",
+  "peak_lr": 0.001,
+  "warmup_steps": 1000,
+  "decay_end_step": 10000,
+  "final_lr": 0.0001,
+  "defined_in": "eval/stage6_3_preregistration.md section 2.1"
+ },
+ "fingerprints": {
+  "initial_weights_sha256": "a389751c22aad283356919a459d6ad84464c95b5f528ac61d1c60ac5320282e9",
+  "eval_batches_sha256": "0b16430f6461735cbd55eb564ec5d5a0426446290c3a5399fd97c00fad63fc8c",
+  "per_step_lr_log": "logs/eq63_20260925120839_v5_cosine_grad_lr.csv",
+  "batch_starts_running_sha256": "3bb8c2cf1612720a4253f2492d6fed20c0317ee61cf7f282f79bc5b1b42c781f",
+  "per_step_log": "logs/eq63_20260925120839_v5_cosine_grad.csv",
+  "generation_draws": {},
+  "final_step": 20,
+  "final_weights_sha256": "b5ad1d96fdd26002f413d3c5303b9eba6b671daf6023f42f63bb3690aa3de921"
+ }
+}

@@ -1,0 +1,92 @@
+{
+ "created_at": "2026-09-25T12:24:56",
+ "status": "completed",
+ "git": {
+  "commit": "dfe08f1badaee5bda35b05c4cad1ea6d6d775da0",
+  "dirty": false,
+  "untracked": [],
+  "diff_file": null
+ },
+ "argv": [
+  "train_transformer.py",
+  "--steps",
+  "1001",
+  "--seed",
+  "1337",
+  "--device",
+  "mps",
+  "--train-tokens",
+  "data/stage6_1_train_tokens.npy",
+  "--run-name",
+  "eq63_20260925120839_post_mps",
+  "--log-name",
+  "eq63_20260925120839_post_mps_training.csv",
+  "--grad-name",
+  "eq63_20260925120839_post_mps_grad.csv",
+  "--samples-name",
+  "eq63_20260925120839_post_mps_samples.txt",
+  "--checkpoint-dir",
+  "/var/folders/yb/59gfz0j11cgbkk2kltqm9gyr0000gn/T/eq63_eawt6qpp/ckpt_post_mps",
+  "--results-file",
+  "/var/folders/yb/59gfz0j11cgbkk2kltqm9gyr0000gn/T/eq63_eawt6qpp/post_mps.md",
+  "--results-title",
+  "Stage 6.3 equivalence run"
+ ],
+ "args": {
+  "steps": 1001,
+  "batch_size": 16,
+  "lr": 0.001,
+  "device": "mps",
+  "run_name": "eq63_20260925120839_post_mps",
+  "resume": null,
+  "train_tokens": "data/stage6_1_train_tokens.npy",
+  "log_name": "eq63_20260925120839_post_mps_training.csv",
+  "grad_name": "eq63_20260925120839_post_mps_grad.csv",
+  "samples_name": "eq63_20260925120839_post_mps_samples.txt",
+  "results_file": "/var/folders/yb/59gfz0j11cgbkk2kltqm9gyr0000gn/T/eq63_eawt6qpp/post_mps.md",
+  "results_title": "Stage 6.3 equivalence run",
+  "seed": 1337,
+  "checkpoint_dir": "/var/folders/yb/59gfz0j11cgbkk2kltqm9gyr0000gn/T/eq63_eawt6qpp/ckpt_post_mps",
+  "d_model": 128,
+  "n_heads": 4,
+  "d_ff": 512,
+  "lr_schedule": "constant"
+ },
+ "seeds": {
+  "seed": 1337,
+  "eval_seed": 1337,
+  "generation_seed": 11337,
+  "generation_rng": "dedicated torch.Generator (decoupled from batches)"
+ },
+ "data": {
+  "train_tokens": {
+   "path": "data/stage6_1_train_tokens.npy",
+   "sha256": "5c25b49be87093ce19f5b7a1d2b67ce2783d062c1a3c3c20c5ce7341ba47d4eb"
+  },
+  "val_tokens": {
+   "path": "data/stage3_val_tokens.npy",
+   "sha256": "9343c0f71f96cc033c4a5ba163af099ea8a33db0d4327af73b3dfae00c52eb9e"
+  }
+ },
+ "resume": null,
+ "environment": {
+  "python": "3.14.7",
+  "torch": "2.14.0",
+  "numpy": "2.5.3"
+ },
+ "lr_schedule": {
+  "name": "constant",
+  "lr": 0.001
+ },
+ "fingerprints": {
+  "initial_weights_sha256": "a389751c22aad283356919a459d6ad84464c95b5f528ac61d1c60ac5320282e9",
+  "eval_batches_sha256": "0b16430f6461735cbd55eb564ec5d5a0426446290c3a5399fd97c00fad63fc8c",
+  "batch_starts_running_sha256": "816a41a861fe9c844b4b5fdd29d80b31892dee0dfa55c6cf03c24ad45a3a80ef",
+  "per_step_log": "logs/eq63_20260925120839_post_mps_grad.csv",
+  "generation_draws": {
+   "1000": 60
+  },
+  "final_step": 1001,
+  "final_weights_sha256": "0daae6dc9c11eae9fbbf26006ee2a6ad54ae18914314d686a5ef5ac245f79351"
+ }
+}
